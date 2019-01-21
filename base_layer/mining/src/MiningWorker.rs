@@ -23,18 +23,39 @@
 // Portions of this file were originally copyrighted (c) 2018 The Grin Developers, issued under the Apache License,
 // Version 2.0, available at http://www.apache.org/licenses/LICENSE-2.0.
 
+ use std::io::Error; //TODO replace with proper error
+
 use tari_core::pow::ProofOfWork;
-use tari_core::transaction::{TransactionInput, TransactionOutput, TransactionKernel};
+use tari_core::transaction::{TransactionInput, TransactionOutput, TransactionKernel, BlindingFactor};
 
 ///This struct represents a mining worker that will hash all the transaction to find find the ProofOfWork;
 #[derive(Clone, Debug, PartialEq)]
 pub struct MiningWorker {
     inputs : Vec<TransactionInput>,
     outputs : Vec<TransactionOutput>,
-    Excess : Vec<TransactionKernel>,
-    nonce : u64
+    kernels : Vec<TransactionKernel>,
+    offset : BlindingFactor,
+    nonce : u64,
 }
 
 impl MiningWorker {
-    
+    ///This function creates a new mining worker
+    ///It only takes in the information required to do the proof of work
+    ///It will return Ok if the parameters was supplied correctly
+    pub fn new (inputs : Vec<TransactionInput>, outputs : Vec<TransactionOutput>, kernels : Vec<TransactionKernel>, offset : BlindingFactor, starting_nonce : u64) -> Result<MiningWorker, Error>
+    {
+        Ok(MiningWorker{
+            inputs,
+            outputs,
+            kernels,
+            offset,
+            nonce: starting_nonce,
+        })
+    }
+
+    ///This function will start the worker on its way to find the nonce for the pow
+    pub fn start(&self)->Result<ProofOfWork, Error>
+    {
+        Ok(ProofOfWork{})
+    }
 }

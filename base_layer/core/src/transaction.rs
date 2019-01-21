@@ -20,10 +20,21 @@
 // WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
 
+#[derive(Clone, Debug, PartialEq)]
 pub struct TransactionInput;
 
+#[derive(Clone, Debug, PartialEq)]
 pub struct TransactionOutput;
 
+#[derive(Clone, Debug, PartialEq)]
 pub struct TransactionKernel;
 
 pub type BlindingFactor = [u8; 32];
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct Transaction {
+    input : TransactionInput,
+    output : TransactionOutput,
+    kernel : TransactionKernel,
+    offset : BlindingFactor,
+}
