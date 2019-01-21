@@ -1,5 +1,6 @@
 [package]
 name = "mining"
 version = "0.0.1"
-
+edition = "2018"
 [dependencies]
+tari_core={ path = "../core", version = "0.0.1"}

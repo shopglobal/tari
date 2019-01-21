@@ -21,4 +21,9 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct ProofOfWork {}
+pub struct CryptoNight {}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct ProofOfWork{
+
+}

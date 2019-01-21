@@ -23,6 +23,18 @@
 // Portions of this file were originally copyrighted (c) 2018 The Grin Developers, issued under the Apache License,
 // Version 2.0, available at http://www.apache.org/licenses/LICENSE-2.0.
 
-use crate::{
-    core::pow::ProofOfWork,
-};
+use tari_core::pow::ProofOfWork;
+use tari_core::transaction::{TransactionInput, TransactionOutput, TransactionKernel};
+
+///This struct represents a mining worker that will hash all the transaction to find find the ProofOfWork;
+#[derive(Clone, Debug, PartialEq)]
+pub struct MiningWorker {
+    inputs : Vec<TransactionInput>,
+    outputs : Vec<TransactionOutput>,
+    Excess : Vec<TransactionKernel>,
+    nonce : u64
+}
+
+impl MiningWorker {
+    
+}

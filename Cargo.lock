@@ -235,6 +235,9 @@ version = "0.0.1"
 [[package]]
 name = "mining"
 version = "0.0.1"
+dependencies = [
+ "tari_core 0.0.1",
+]
 
 [[package]]
 name = "num-integer"
