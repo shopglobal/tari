@@ -92,6 +92,11 @@ others, with the ability to reveal the committed value later. Commitments are de
 value or statement after they have committed to it.
 
 
+## Creator Assigned Mode
+
+An asset runs in creator-assigned mode when _every_ validator node in a validator committee is a [Trusted Node].
+
+
 ## Digital asset
 [digital asset]: #digital-asset 'Sets of Native digital tokens, both fungible and non-fungible that are created by 
 asset issuers on the Tari 2nd layer'
@@ -151,15 +156,18 @@ Mimblewimble is a privacy-centric cryptocurrency protocol. It was
 [dropped](https://download.wpsoftware.net/bitcoin/wizardry/mimblewimble.txt) in the Bitcoin Developers chatroom by an
 anonymous author and has since been refined by several authors, including Andrew Poelstra.
 
+
 ## Mining Server
 [mining server]: #mining-server
 
 A Mining Server is responsible for constructing new blocks by bundling transactions from the [mempool] of a connected [Base Node]. It also distributes Proof-of-Work tasks to Mining Workers and verifies PoW solutions.
 
+
 ## Mining Worker
 [mining worker]: #mining-worker
 
 A Mining Worker is responsible for performing Proof-of-Work tasks received from its parent [Mining Server].
+
 
 ## Range proof
 [range proof]: #range-proof
@@ -240,7 +248,7 @@ updating [digital asset]s living on the Tari network.
 ## Wallet
 [wallet]: #wallet "A Wallet for Tari coins"
 
-A Tari Wallet is responsible for managing key pairs, and for constructing and negotiating [transaction]s for transferring and receiving [tari coin]s on the [Base Layer]. 
+A Tari Wallet is responsible for managing key pairs, and for constructing and negotiating [transaction]s for transferring and receiving [tari coin]s on the [Base Layer].
 
 # Disclaimer
 
