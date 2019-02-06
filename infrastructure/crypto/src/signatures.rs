@@ -44,9 +44,6 @@ pub trait SchnorrSignature: Sized {
         public_key: &Self::Point,
         public_nonce: &Self::Point,
         adaptor_point: &Self::Point,
-    ) -> Challenge<D>
-    {
-        let r_plus_t: Self::Point = PublicKey::add(public_key, adaptor_point);
-        challenge.concat((*public_key).to_bytes()).concat(r_plus_t.to_bytes())
-    }
+    ) -> Challenge<D>;
 }
+
