@@ -23,4 +23,17 @@ pub trait SchnorrSignature {
     fn get_signature(&self) -> &Self::Scalar;
 
     fn get_public_nonce(&self) -> &Self::Point;
+
+    /// An adaptor signature is one that retains a piece of information, making it incomplete. Once some condition is
+    /// satisfied (e.g. another payment is received) the piece of information can be revealed, yielding a final signature.
+    /// The adaptor signature makes use of another keypair, \\( T = t.G \\) in addition to the usual nonce and private
+    /// key pairs from the [SchnorrSignature](Trait.SchnorrSignature.html).
+    fn adapt_signature(&self, t: &Self::Scalar) -> Self {
+        let s_adapt = self.get_signature() - t;
+        let r_adapt = self.get_public_nonce() + Self::Point::from_secret_key(&t);
+        Self::new(r_adapt, s_adapt)
+    }
 }
+
+
+
