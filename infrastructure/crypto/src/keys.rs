@@ -4,12 +4,14 @@
 //! implementation without worrying too much about the impact on upstream code.
 
 use rand::{CryptoRng, Rng};
+use std::ops::Add;
+use crate::common::ByteArray;
 
 /// A secret key factory trait. The `random` function is pulled out into a separate Trait because
 /// we can't know _a priori_ whether the default implementation (uniform random characters over the
 /// full 2^256 space) represents legal private keys. Maybe some validation must be done, which
 /// must be left up to the respective curve implementations.
-pub trait SecretKeyFactory {
+pub trait SecretKeyFactory: Sized {
     fn random<R: CryptoRng + Rng>(rng: &mut R) -> Self;
 }
 
@@ -37,7 +39,7 @@ pub trait SecretKey {
 /// implementations need to implement this trait for them to be used in Tari.
 ///
 /// See [SecretKey](trait.SecretKey.html) for an example.
-pub trait PublicKey {
+pub trait PublicKey: ByteArray + Add + Sized {
     type K: SecretKey;
     /// Calculate the public key associated with the given secret key. This should not fail; if a
     /// failure does occur (implementation error?), the function will panic.

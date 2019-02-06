@@ -31,7 +31,7 @@ use curve25519_dalek::{
     scalar::Scalar,
 };
 use rand::{CryptoRng, Rng};
-use std::ops::Add;
+use std::ops::{Add, Sub};
 
 /// The [SecretKey](trait.SecretKey.html) implementation for [Ristretto](https://ristretto.group) is a thin wrapper
 /// around the Dalek [Scalar](struct.Scalar.html) type, representing a 256-bit integer (mod the group order).
@@ -181,11 +181,36 @@ impl Add for &RistrettoPublicKey {
     }
 }
 
+impl Add for RistrettoPublicKey {
+    type Output = RistrettoPublicKey;
+
+    fn add(self, rhs: RistrettoPublicKey) -> Self::Output {
+        &self + &rhs
+    }
+}
+
+impl Sub for &RistrettoPublicKey {
+    type Output = RistrettoPublicKey;
+
+    fn sub(self, rhs: &RistrettoPublicKey) -> Self::Output {
+        let p_sum = &self.point - &rhs.point;
+        RistrettoPublicKey::new_from_pk(p_sum)
+    }
+}
+
 impl Add for &RistrettoSecretKey {
     type Output = RistrettoSecretKey;
 
     fn add(self, rhs: &RistrettoSecretKey) -> Self::Output {
         RistrettoSecretKey(&self.0 + &rhs.0)
+    }
+}
+
+impl Sub for &RistrettoSecretKey {
+    type Output = RistrettoSecretKey;
+
+    fn sub(self, rhs: &RistrettoSecretKey) -> Self::Output {
+        RistrettoSecretKey(&self.0 - &rhs.0)
     }
 }
 

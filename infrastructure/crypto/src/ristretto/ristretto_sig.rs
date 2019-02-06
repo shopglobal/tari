@@ -148,6 +148,12 @@ impl SchnorrSignature for RistrettoSchnorr {
     fn get_public_nonce(&self) -> &RistrettoPublicKey {
         &self.R
     }
+
+    fn create_adaptor_signature(&self, t: &Self::Scalar) -> Self {
+        let s_adapt = &self.s - t;
+        let r_adapt = self.get_public_nonce() + &Self::Point::from_secret_key(&t);
+        Self::new(r_adapt, s_adapt)
+    }
 }
 
 impl Add for &RistrettoSchnorr {
