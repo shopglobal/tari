@@ -32,6 +32,7 @@ use curve25519_dalek::{
 };
 use rand::{CryptoRng, Rng};
 use std::ops::{Add, Sub};
+use std::ops::Mul;
 
 /// The [SecretKey](trait.SecretKey.html) implementation for [Ristretto](https://ristretto.group) is a thin wrapper
 /// around the Dalek [Scalar](struct.Scalar.html) type, representing a 256-bit integer (mod the group order).
@@ -91,6 +92,26 @@ impl SecretKeyFactory for RistrettoSecretKey {
         RistrettoSecretKey(Scalar::random(rng))
     }
 }
+
+impl Mul<RistrettoPublicKey> for RistrettoSecretKey {
+    type Output = RistrettoPublicKey;
+
+    fn mul(self, rhs: RistrettoPublicKey) -> RistrettoPublicKey {
+        let p =  &self.0 * &rhs.point;
+        RistrettoPublicKey::new_from_pk(p)
+    }
+}
+
+impl Mul<&RistrettoPublicKey> for RistrettoSecretKey {
+    type Output = RistrettoPublicKey;
+
+    fn mul(self, rhs: &RistrettoPublicKey) -> RistrettoPublicKey {
+        let p =  &self.0 * &rhs.point;
+        RistrettoPublicKey::new_from_pk(p)
+    }
+}
+
+//--------------------------------------------- Ristretto Public Key -------------------------------------------------//
 
 /// The [PublicKey](trait.PublicKey.html) implementation for `ristretto255` is a thin wrapper around the dalek
 /// library's [RistrettoPoint](struct.RistrettoPoint.html).
@@ -211,6 +232,15 @@ impl Sub for &RistrettoSecretKey {
 
     fn sub(self, rhs: &RistrettoSecretKey) -> Self::Output {
         RistrettoSecretKey(&self.0 - &rhs.0)
+    }
+}
+
+impl Mul<RistrettoSecretKey> for RistrettoPublicKey {
+    type Output = Self;
+
+    fn mul(self, rhs: RistrettoSecretKey) -> Self {
+        let p =  &rhs.0 * &self.point;
+        RistrettoPublicKey::new_from_pk(p)
     }
 }
 

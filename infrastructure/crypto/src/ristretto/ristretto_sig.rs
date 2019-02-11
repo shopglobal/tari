@@ -28,9 +28,9 @@ use crate::{
 };
 use curve25519_dalek::scalar::Scalar;
 use std::ops::Add;
-use crate::challenge::Challenge;
-use crate::common::ByteArray;
 use digest::Digest;
+
+//------------------------------------------- Ristretto SchnorrSignature ---------------------------------------------//
 
 /// # A Schnorr signature implementation on Ristretto
 ///
@@ -151,19 +151,6 @@ impl SchnorrSignature for RistrettoSchnorr {
     fn get_public_nonce(&self) -> &RistrettoPublicKey {
         &self.R
     }
-
-    fn create_adaptor_signature(&self, t: &Self::Scalar) -> Self {
-        let s_adapt = &self.s - t;
-        let r_adapt = self.get_public_nonce() + &Self::Point::from_secret_key(&t);
-        Self::new(r_adapt, s_adapt)
-    }
-
-    fn create_adaptor_sig_challenge<D: Digest>(challenge: Challenge<D>, public_key: &Self::Point, public_nonce: &Self::Point, adaptor_point: &Self::Point) -> Challenge<D> {
-            let r_plus_t = public_nonce + adaptor_point;
-            challenge
-                .concat(public_key.to_bytes())
-                .concat(r_plus_t.to_bytes())
-    }
 }
 
 impl Add for &RistrettoSchnorr {
@@ -242,25 +229,5 @@ mod test {
         let e3: Challenge256Bit = challenge.into();
         // Check that the multi-sig verifies
         assert!(s_agg.verify(&(&P1 + &P2), &e3));
-    }
-
-    #[test]
-    fn adapter_sigs() {
-        let (k, P) = get_keypair();
-        let (r, R) = get_keypair();
-        let (t, T) = get_keypair();
-
-        let challenge = Challenge::<Blake256>::new().concat(b"Maskerade");
-
-        let challenge = RistrettoSchnorr::create_adaptor_sig_challenge(challenge, &P, &R, &T);
-
-        let check = Challenge::<Blake256>::new()
-            .concat(b"Maskerade")
-            .concat(P.to_bytes())
-            .concat((&R + &T).to_bytes())
-            .hash();
-
-        assert_eq!(check, challenge.hash());
-
     }
 }

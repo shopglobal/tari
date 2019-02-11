@@ -29,7 +29,7 @@ pub trait SecretKeyFactory: Sized {
 /// let k = RistrettoSecretKey::random(&mut rng);
 /// let p = RistrettoPublicKey::from_secret_key(&k);
 /// ```
-pub trait SecretKey {
+pub trait SecretKey: ByteArray + Clone + Sized {
     fn key_length() -> usize;
 }
 
@@ -39,7 +39,7 @@ pub trait SecretKey {
 /// implementations need to implement this trait for them to be used in Tari.
 ///
 /// See [SecretKey](trait.SecretKey.html) for an example.
-pub trait PublicKey: ByteArray + Add<Output=Self> + Sized {
+pub trait PublicKey: ByteArray + Add<Output=Self> + Sized + Clone {
     type K: SecretKey;
     /// Calculate the public key associated with the given secret key. This should not fail; if a
     /// failure does occur (implementation error?), the function will panic.
