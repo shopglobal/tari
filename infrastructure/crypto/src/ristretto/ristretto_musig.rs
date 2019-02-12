@@ -39,6 +39,8 @@ mod test {
         RistrettoSecretKey::from_vec(&k).unwrap()
     }
 
+    /// Test the steps in the MuSig Joint Public key construction. We don't sort the keys in this test because we
+    /// want to keep the order of the keys consistent
     #[test]
     pub fn musig_joint_key() {
         let (_, p1) = get_keypair();
@@ -53,5 +55,7 @@ mod test {
         let a2 = hash_pair(ell.to_bytes(), p2.to_bytes());
         assert_eq!(a1, s[0], "a1 is not equal");
         assert_eq!(a2, s[1], "a2 is not equal");
+        let jk = jk.calculate_joint_key::<Sha256>();
+        assert_eq!(jk, a1*p1 + a2*p2);
     }
 }
