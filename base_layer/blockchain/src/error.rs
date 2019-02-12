@@ -1,4 +1,4 @@
-// Copyright 2019 The Tari Project
+// Copyright 2018 The Tari Project
 //
 // Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
 // following conditions are met:
@@ -20,18 +20,11 @@
 // WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-pub mod constants;
-pub mod pedersen;
-pub mod ristretto_keys;
-pub mod ristretto_musig;
-pub mod ristretto_sig;
+// this file is used for all blockchain error types
+use derive_error::Error;
 
-// Re-export
-pub use self::{
-    ristretto_keys::{RistrettoPublicKey, RistrettoSecretKey},
-    ristretto_sig::RistrettoSchnorr,
-};
-
-// test modules
-#[cfg(test)]
-mod test_common;
+/// The ChainError is used to present all generic chain error of the actual blockchain
+#[derive(Debug, Error)]
+pub enum ChainError {
+    Brokenchain, // place holder for real error
+}
