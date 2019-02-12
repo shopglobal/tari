@@ -3,9 +3,9 @@
 //! implementation of ECC curve). The idea being that we can swap out the underlying
 //! implementation without worrying too much about the impact on upstream code.
 
+use crate::common::ByteArray;
 use rand::{CryptoRng, Rng};
 use std::ops::Add;
-use crate::common::ByteArray;
 
 /// A secret key factory trait. The `random` function is pulled out into a separate Trait because
 /// we can't know _a priori_ whether the default implementation (uniform random characters over the
@@ -29,7 +29,7 @@ pub trait SecretKeyFactory: Sized {
 /// let k = RistrettoSecretKey::random(&mut rng);
 /// let p = RistrettoPublicKey::from_secret_key(&k);
 /// ```
-pub trait SecretKey: ByteArray + Clone + Sized {
+pub trait SecretKey: ByteArray + Clone {
     fn key_length() -> usize;
 }
 
@@ -39,11 +39,13 @@ pub trait SecretKey: ByteArray + Clone + Sized {
 /// implementations need to implement this trait for them to be used in Tari.
 ///
 /// See [SecretKey](trait.SecretKey.html) for an example.
-pub trait PublicKey: ByteArray + Add<Output=Self> + Sized + Clone {
+pub trait PublicKey: ByteArray + Add<Output = Self> + Clone + PartialOrd + Ord {
     type K: SecretKey;
     /// Calculate the public key associated with the given secret key. This should not fail; if a
     /// failure does occur (implementation error?), the function will panic.
     fn from_secret_key(k: &Self::K) -> Self;
 
     fn key_length() -> usize;
+
+    fn batch_mul(scalars: &Vec<Self::K>, points: &Vec<Self>) -> Self;
 }

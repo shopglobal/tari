@@ -28,7 +28,6 @@ use crate::{
 };
 use curve25519_dalek::scalar::Scalar;
 use std::ops::Add;
-use digest::Digest;
 
 //------------------------------------------- Ristretto SchnorrSignature ---------------------------------------------//
 
@@ -168,18 +167,9 @@ mod test {
     use crate::{
         challenge::{Challenge, Challenge256Bit},
         common::{Blake256, ByteArray},
-        keys::{PublicKey, SecretKeyFactory},
-        ristretto::{RistrettoPublicKey, RistrettoSchnorr, RistrettoSecretKey},
+        ristretto::{test_common::*, RistrettoSchnorr},
         signatures::SchnorrSignature,
     };
-    use rand;
-
-    fn get_keypair() -> (RistrettoSecretKey, RistrettoPublicKey) {
-        let mut rng = rand::OsRng::new().unwrap();
-        let k = RistrettoSecretKey::random(&mut rng);
-        let pk = RistrettoPublicKey::from_secret_key(&k);
-        (k, pk)
-    }
 
     /// Create a signature, and then verify it. Also checks that some invalid signatures fail to verify
     #[test]

@@ -20,16 +20,38 @@
 // WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-pub mod ristretto_keys;
-pub mod ristretto_musig;
-pub mod ristretto_sig;
 
-// Re-export
-pub use self::{
-    ristretto_keys::{RistrettoPublicKey, RistrettoSecretKey},
-    ristretto_sig::RistrettoSchnorr,
-};
-
-// test modules
 #[cfg(test)]
-mod test_common;
+mod test {
+    use crate::{
+        common::ByteArray,
+        musig::JointKey,
+        ristretto::{test_common::*, RistrettoSecretKey},
+    };
+    use sha2::Sha256;
+    use crate::challenge::Challenge;
+
+    fn hash_pair(v1: &[u8], v2: &[u8]) -> RistrettoSecretKey {
+        let k = Challenge::<Sha256>::new()
+            .concat(v1)
+            .concat(v2)
+            .hash();
+        RistrettoSecretKey::from_vec(&k).unwrap()
+    }
+
+    #[test]
+    pub fn musig_joint_key() {
+        let (_, p1) = get_keypair();
+        let (_, p2) = get_keypair();
+        let mut jk = JointKey::new();
+        jk.add(p1);
+        jk.add(p2);
+        let s: Vec<RistrettoSecretKey> = jk.calculate_musig_scalars::<Sha256>();
+        let ell = hash_pair(p1.to_bytes(), p2.to_bytes());
+        assert_eq!(ell, jk.calculate_common::<Sha256>(), "Ell is not equal");
+        let a1 = hash_pair(ell.to_bytes(), p1.to_bytes());
+        let a2 = hash_pair(ell.to_bytes(), p2.to_bytes());
+        assert_eq!(a1, s[0], "a1 is not equal");
+        assert_eq!(a2, s[1], "a2 is not equal");
+    }
+}

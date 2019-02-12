@@ -20,16 +20,14 @@
 // WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-pub mod ristretto_keys;
-pub mod ristretto_musig;
-pub mod ristretto_sig;
-
-// Re-export
-pub use self::{
-    ristretto_keys::{RistrettoPublicKey, RistrettoSecretKey},
-    ristretto_sig::RistrettoSchnorr,
+use crate::{
+    keys::{PublicKey, SecretKeyFactory},
+    ristretto::{RistrettoPublicKey, RistrettoSecretKey},
 };
-
-// test modules
-#[cfg(test)]
-mod test_common;
+use rand;
+pub fn get_keypair() -> (RistrettoSecretKey, RistrettoPublicKey) {
+    let mut rng = rand::OsRng::new().unwrap();
+    let k = RistrettoSecretKey::random(&mut rng);
+    let pk = RistrettoPublicKey::from_secret_key(&k);
+    (k, pk)
+}

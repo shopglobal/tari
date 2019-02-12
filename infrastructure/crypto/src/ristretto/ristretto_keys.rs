@@ -29,10 +29,11 @@ use curve25519_dalek::{
     constants::RISTRETTO_BASEPOINT_TABLE,
     ristretto::{CompressedRistretto, RistrettoPoint},
     scalar::Scalar,
+    traits::MultiscalarMul,
 };
 use rand::{CryptoRng, Rng};
-use std::ops::{Add, Sub};
-use std::ops::Mul;
+use std::ops::{Add, Mul, Sub};
+use std::cmp::Ordering;
 
 /// The [SecretKey](trait.SecretKey.html) implementation for [Ristretto](https://ristretto.group) is a thin wrapper
 /// around the Dalek [Scalar](struct.Scalar.html) type, representing a 256-bit integer (mod the group order).
@@ -97,7 +98,7 @@ impl Mul<RistrettoPublicKey> for RistrettoSecretKey {
     type Output = RistrettoPublicKey;
 
     fn mul(self, rhs: RistrettoPublicKey) -> RistrettoPublicKey {
-        let p =  &self.0 * &rhs.point;
+        let p = &self.0 * &rhs.point;
         RistrettoPublicKey::new_from_pk(p)
     }
 }
@@ -106,7 +107,7 @@ impl Mul<&RistrettoPublicKey> for RistrettoSecretKey {
     type Output = RistrettoPublicKey;
 
     fn mul(self, rhs: &RistrettoPublicKey) -> RistrettoPublicKey {
-        let p =  &self.0 * &rhs.point;
+        let p = &self.0 * &rhs.point;
         RistrettoPublicKey::new_from_pk(p)
     }
 }
@@ -157,6 +158,13 @@ impl PublicKey for RistrettoPublicKey {
     fn key_length() -> usize {
         PUBLIC_KEY_LENGTH
     }
+
+    fn batch_mul(scalars: &Vec<Self::K>, points: &Vec<Self>) -> Self {
+        let p: Vec<RistrettoPoint> = points.iter().map(|p| p.point.clone()).collect();
+        let s: Vec<Scalar> = scalars.iter().map(|k| k.0.clone()).collect();
+        let p = RistrettoPoint::multiscalar_mul(s, p);
+        RistrettoPublicKey::new_from_pk(p)
+    }
 }
 
 impl PartialEq for RistrettoPublicKey {
@@ -168,6 +176,18 @@ impl PartialEq for RistrettoPublicKey {
 }
 
 impl Eq for RistrettoPublicKey {}
+
+impl PartialOrd for RistrettoPublicKey {
+    fn partial_cmp(&self, other: &RistrettoPublicKey) -> Option<Ordering> {
+        self.compressed.to_bytes().partial_cmp(&other.compressed.to_bytes())
+    }
+}
+
+impl Ord for RistrettoPublicKey {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.compressed.to_bytes().cmp(&other.compressed.to_bytes())
+    }
+}
 
 impl ByteArray for RistrettoPublicKey {
     /// Create a new `RistrettoPublicKey` instance form the given byte array. The constructor returns errors under
@@ -239,7 +259,7 @@ impl Mul<RistrettoSecretKey> for RistrettoPublicKey {
     type Output = Self;
 
     fn mul(self, rhs: RistrettoSecretKey) -> Self {
-        let p =  &rhs.0 * &self.point;
+        let p = &rhs.0 * &self.point;
         RistrettoPublicKey::new_from_pk(p)
     }
 }
@@ -268,6 +288,7 @@ mod test {
     use crate::{
         common::ByteArray,
         keys::{PublicKey, SecretKeyFactory},
+        ristretto::test_common::get_keypair,
     };
     use rand;
 
@@ -398,5 +419,14 @@ mod test {
         for bad_encoding in &bad_encodings {
             RistrettoPublicKey::from_hex(bad_encoding).expect_err(&format!("Encoding {} should fail", bad_encoding));
         }
+    }
+
+    #[test]
+    fn batch_mul() {
+        let (k1, p1) = get_keypair();
+        let (k2, p2) = get_keypair();
+        let p_slow = &(k1 * &p1) + &(k2 * &p2);
+        let b_batch = RistrettoPublicKey::batch_mul(&vec![k1, k2], &vec![p1, p2]);
+        assert_eq!(p_slow, b_batch);
     }
 }

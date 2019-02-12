@@ -22,13 +22,11 @@
 //
 
 use crate::{
+    challenge::Challenge,
     keys::{PublicKey, SecretKey},
 };
-use std::prelude::v1::Vec;
-use crate::challenge::Challenge;
 use digest::Digest;
-use std::ops::Mul;
-use std::clone::Clone;
+use std::{ops::Mul, prelude::v1::Vec};
 
 /// The JointKey is a modified public key used in Signature aggregation schemes like MuSig which is not susceptible
 /// to Rogue Key attacks.
@@ -39,77 +37,65 @@ use std::clone::Clone;
 ///   X = \sum H(L || P_i)P_i
 ///   X_i = k_i H(L || P_i).G
 /// $$
+/// Concrete implementations of JointKey will also need to implement the MultiScalarMul trait, which allows them to
+/// provide implementation-specific optimisations for dot-product operations.
 pub struct JointKey<P: PublicKey> {
     participants: Vec<P>,
 }
 
 impl<K, P> JointKey<P>
-    where
-        K: SecretKey + Mul<P, Output=P>,
-        P: PublicKey<K = K>, {
-
+where
+    K: SecretKey + Mul<P, Output = P>,
+    P: PublicKey<K = K>,
+{
     pub fn new() -> JointKey<P> {
-        JointKey {
-            participants: Vec::new(),
-        }
+        JointKey { participants: Vec::new() }
     }
 
-    pub fn add(mut self, pub_key: P) -> Self {
+    pub fn add(&mut self, pub_key: P) {
         self.participants.push(pub_key);
-        self
     }
 
-    pub fn add_keys<T: Iterator<Item = P>>(mut self, keys: T) -> Self {
-        let mut this = self;
+    pub fn add_keys<T: Iterator<Item = P>>(&mut self, keys: T) {
         for k in keys {
-            this = this.add(k);
+            self.add(k);
         }
-        this
     }
 
-    fn calculate_common<D: Digest>(&self) -> Vec<u8> {
+    ///Utility function to calculate \\( \ell = H(P_1 || ... || P_n) \mod p \\)
+    pub fn calculate_common<D: Digest>(&self) -> K {
         let mut common = Challenge::<D>::new();
         for k in self.participants.iter() {
             common = common.concat(k.to_bytes());
         }
-        common.hash()
+        K::from_vec(&common.hash()).expect("Could not calculate Scalar from hash value. Your crypto/hash combination \
+        might be inconsistent")
     }
 
-    pub fn calculate_joint_key<D: Digest>(&self) -> P {
-        unimplemented!()
-    }
-
-    pub fn calculate_partial_key<D: Digest>(&self, i: usize) -> Option<P> {
-        let common = self.calculate_common::<D>();
-        let challenge = Challenge::<D>::new();
-        let key = match self.participants.get(i) {
-            None => return None,
-            Some(p) => (*p).clone()
-        };
-        let partial = challenge
-            .concat(&common)
-            .concat(key.to_bytes())
+    /// Private utility function to calculate \\( H(\ell || P_i) \mod p \\)
+    fn calculate_partial_key<D: Digest>(common: &[u8], pubkey: &P) -> K {
+        let k = Challenge::<D>::new()
+            .concat(common)
+            .concat(pubkey.to_bytes())
             .hash();
-        let scalar = K::from_vec(&partial).unwrap();
-        Some(K::mul(scalar, key))
+        K::from_vec(&k).expect("Could not calculate Scalar from hash value. Your crypto/hash combination might be inconsistent")
+ }
+
+    pub fn sort_keys(&mut self) {
+        self.participants.sort_unstable();
     }
-}
 
-#[cfg(test)]
-mod test {
-    use super::*;
+    /// Utility function that produces the vector of MuSig private key modifiers, \\( a_i = H(\ell || P_i) \\)
+    pub fn calculate_musig_scalars<D: Digest>(&self) -> Vec<K> {
+        let common = self.calculate_common::<D>();
+        self.participants.iter().map(|p| JointKey::calculate_partial_key::<D>(common.to_bytes(), p)).collect()
+    }
 
-    #[test]
-    fn test_joint_key_creation() {
-//        let joint_key = JointKey::new();
-//        joint_key
-//            .add(pubkey_1)
-//            .add(pubkey_2);
-//
-//        joint_key.add_keys(keys);
-//        let X = joint_key.calculate_joint_key();
-//        let Xi = joint_key.calculate_partial_key(i);
-//        let partials = joint_key.partials();
-
+    /// Calculate the value of the Joint MuSig public key. **NB**: you should ensure that the public keys are in
+    /// canonical order, or else call `sort_keys()` before calculating the joint key.
+    pub fn calculate_joint_key<D: Digest>(&mut self) -> P {
+        let s = self.calculate_musig_scalars::<D>();
+        let key = P::batch_mul(&s, &self.participants);
+        key
     }
 }
