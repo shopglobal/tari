@@ -48,39 +48,51 @@ where
     K: SecretKey + Mul<P, Output = P>,
     P: PublicKey<K = K>,
 {
+    /// Create a new JointKey instance containing no participant keys
     pub fn new() -> JointKey<P> {
         JointKey { participants: Vec::new() }
     }
 
+    /// Add a participant signer's public key to the JointKey
     pub fn add(&mut self, pub_key: P) {
         self.participants.push(pub_key);
     }
 
-    pub fn add_keys<T: Iterator<Item = P>>(&mut self, keys: T) {
-        for k in keys {
+    /// Add all the keys in `keys` to the participant list.
+    pub fn add_keys<T: IntoIterator<Item = P>>(&mut self, keys: T) {
+        for k in keys.into_iter() {
             self.add(k);
         }
     }
 
-    ///Utility function to calculate \\( \ell = H(P_1 || ... || P_n) \mod p \\)
+    /// Utility function to calculate \\( \ell = H(P_1 || ... || P_n) \mod p \\)
+    /// # Panics
+    /// If the SecretKey implementation cannot construct a valid key from the given hash, the function will panic.
+    /// You should ensure that the SecretKey constructor protects against failures and that the hash digest given
+    /// produces a byte array of the correct length.
     pub fn calculate_common<D: Digest>(&self) -> K {
         let mut common = Challenge::<D>::new();
         for k in self.participants.iter() {
             common = common.concat(k.to_bytes());
         }
-        K::from_vec(&common.hash()).expect("Could not calculate Scalar from hash value. Your crypto/hash combination \
-        might be inconsistent")
+        K::from_vec(&common.hash())
+            .expect("Could not calculate Scalar from hash value. Your crypto/hash combination might be inconsistent")
     }
 
     /// Private utility function to calculate \\( H(\ell || P_i) \mod p \\)
+    /// # Panics
+    /// If the SecretKey implementation cannot construct a valid key from the given hash, the function will panic.
+    /// You should ensure that the SecretKey constructor protects against failures and that the hash digest given
+    /// produces a byte array of the correct length.
     fn calculate_partial_key<D: Digest>(common: &[u8], pubkey: &P) -> K {
-        let k = Challenge::<D>::new()
-            .concat(common)
-            .concat(pubkey.to_bytes())
-            .hash();
-        K::from_vec(&k).expect("Could not calculate Scalar from hash value. Your crypto/hash combination might be inconsistent")
- }
+        let k = Challenge::<D>::new().concat(common).concat(pubkey.to_bytes()).hash();
+        K::from_vec(&k)
+            .expect("Could not calculate Scalar from hash value. Your crypto/hash combination might be inconsistent")
+    }
 
+    /// Sort the keys in the participant list. The order is determined by the `Ord` trait of the concrete public key
+    /// implementation used to construct the joint key.
+    /// **NB:** Sorting the keys will, usually, change the value of the joint key!
     pub fn sort_keys(&mut self) {
         self.participants.sort_unstable();
     }
@@ -91,8 +103,8 @@ where
         self.participants.iter().map(|p| JointKey::calculate_partial_key::<D>(common.to_bytes(), p)).collect()
     }
 
-    /// Calculate the value of the Joint MuSig public key. **NB**: you should ensure that the public keys are in
-    /// canonical order, or else call `sort_keys()` before calculating the joint key.
+    /// Calculate the value of the Joint MuSig public key. **NB**: you should usually sort the participant's keys
+    /// before calculating the joint key.
     pub fn calculate_joint_key<D: Digest>(&mut self) -> P {
         let s = self.calculate_musig_scalars::<D>();
         let key = P::batch_mul(&s, &self.participants);

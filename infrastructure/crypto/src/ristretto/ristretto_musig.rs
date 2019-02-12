@@ -20,22 +20,18 @@
 // WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
 #[cfg(test)]
 mod test {
     use crate::{
+        challenge::Challenge,
         common::ByteArray,
         musig::JointKey,
         ristretto::{test_common::*, RistrettoSecretKey},
     };
     use sha2::Sha256;
-    use crate::challenge::Challenge;
 
     fn hash_pair(v1: &[u8], v2: &[u8]) -> RistrettoSecretKey {
-        let k = Challenge::<Sha256>::new()
-            .concat(v1)
-            .concat(v2)
-            .hash();
+        let k = Challenge::<Sha256>::new().concat(v1).concat(v2).hash();
         RistrettoSecretKey::from_vec(&k).unwrap()
     }
 
@@ -56,6 +52,21 @@ mod test {
         assert_eq!(a1, s[0], "a1 is not equal");
         assert_eq!(a2, s[1], "a2 is not equal");
         let jk = jk.calculate_joint_key::<Sha256>();
-        assert_eq!(jk, a1*p1 + a2*p2);
+        assert_eq!(jk, a1 * p1 + a2 * p2);
+    }
+
+    #[test]
+    fn joint_key_iterator() {
+        let (_, p1) = get_keypair();
+        let (_, p2) = get_keypair();
+        let (_, p3) = get_keypair();
+        let mut jk1 = JointKey::new();
+        let mut jk2 = JointKey::new();
+        jk2.add(p1.clone());
+        jk2.add(p2.clone());
+        jk2.add(p3.clone());
+        let v = vec![p1, p2, p3].into_iter();
+        jk1.add_keys(v);
+        assert_eq!(jk1.calculate_joint_key::<Sha256>(), jk2.calculate_joint_key::<Sha256>());
     }
 }

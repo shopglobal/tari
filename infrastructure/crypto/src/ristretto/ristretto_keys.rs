@@ -32,8 +32,10 @@ use curve25519_dalek::{
     traits::MultiscalarMul,
 };
 use rand::{CryptoRng, Rng};
-use std::ops::{Add, Mul, Sub};
-use std::cmp::Ordering;
+use std::{
+    cmp::Ordering,
+    ops::{Add, Mul, Sub},
+};
 
 /// The [SecretKey](trait.SecretKey.html) implementation for [Ristretto](https://ristretto.group) is a thin wrapper
 /// around the Dalek [Scalar](struct.Scalar.html) type, representing a 256-bit integer (mod the group order).
