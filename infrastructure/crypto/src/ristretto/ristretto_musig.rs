@@ -72,11 +72,12 @@ mod test {
 
     #[test]
     fn index_of() {
-        let p1 = RistrettoPublicKey::from_hex("30bc3e149a3f7d2aacbfe730e19e9a07773b5353db622063b92c993632ad3c07")
-            .unwrap();
-        let p2 = RistrettoPublicKey::from_hex("90ca11cd6c6227cb0abc39e2710c444ae6617ea81898e716353f3410d9656605").unwrap();
-        let p3 = RistrettoPublicKey::from_hex("9ea343c470e4572165f3403851df6b20ddfbcef1ab84cfab0fc58bdf7c36fe07")
-            .unwrap();
+        let p1 =
+            RistrettoPublicKey::from_hex("30bc3e149a3f7d2aacbfe730e19e9a07773b5353db622063b92c993632ad3c07").unwrap();
+        let p2 =
+            RistrettoPublicKey::from_hex("90ca11cd6c6227cb0abc39e2710c444ae6617ea81898e716353f3410d9656605").unwrap();
+        let p3 =
+            RistrettoPublicKey::from_hex("9ea343c470e4572165f3403851df6b20ddfbcef1ab84cfab0fc58bdf7c36fe07").unwrap();
         let mut jk = JointKey::new();
         // Add keys in non-lexicographical order
         jk.add_keys(vec![p2, p1, p3].into_iter());
@@ -86,6 +87,7 @@ mod test {
         assert_eq!(jk.index_of(&p1).unwrap(), 0);
         assert_eq!(jk.index_of(&p2).unwrap(), 1);
         assert_eq!(jk.index_of(&p3).unwrap(), 2);
+        // This key should be in the list
         assert_eq!(jk.index_of(&(&p3 + &p1)).unwrap_err(), MuSigError::ParticipantNotFound);
     }
 }
