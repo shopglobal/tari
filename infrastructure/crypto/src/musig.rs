@@ -24,7 +24,9 @@
 use crate::{
     challenge::Challenge,
     keys::{PublicKey, SecretKey},
+    signatures::SchnorrSignature,
 };
+use derive_error::Error;
 use digest::Digest;
 use std::{ops::Mul, prelude::v1::Vec};
 
@@ -40,6 +42,7 @@ use std::{ops::Mul, prelude::v1::Vec};
 /// Concrete implementations of JointKey will also need to implement the MultiScalarMul trait, which allows them to
 /// provide implementation-specific optimisations for dot-product operations.
 pub struct JointKey<P: PublicKey> {
+    is_sorted: bool,
     participants: Vec<P>,
 }
 
@@ -50,12 +53,18 @@ where
 {
     /// Create a new JointKey instance containing no participant keys
     pub fn new() -> JointKey<P> {
-        JointKey { participants: Vec::new() }
+        JointKey { is_sorted: false, participants: Vec::new() }
+    }
+
+    /// If the participant keys are in lexicographical order, returns true.
+    pub fn is_sorted(&self) -> bool {
+        self.is_sorted
     }
 
     /// Add a participant signer's public key to the JointKey
     pub fn add(&mut self, pub_key: P) {
         self.participants.push(pub_key);
+        self.is_sorted = false;
     }
 
     /// Add all the keys in `keys` to the participant list.
@@ -95,6 +104,7 @@ where
     /// **NB:** Sorting the keys will, usually, change the value of the joint key!
     pub fn sort_keys(&mut self) {
         self.participants.sort_unstable();
+        self.is_sorted = true;
     }
 
     /// Utility function that produces the vector of MuSig private key modifiers, \\( a_i = H(\ell || P_i) \\)
@@ -109,5 +119,79 @@ where
         let s = self.calculate_musig_scalars::<D>();
         let key = P::batch_mul(&s, &self.participants);
         key
+    }
+
+    /// Return the index of the given key in the joint key participants list, or None if it isn't in the list
+    pub fn index_of(&self, pubkey: &P) -> Result<usize, MuSigError> {
+        println!(
+            "Participants: {:?}\n SearchFor: {:?}",
+            self.participants.iter().map(|p| p.to_hex()).collect::<String>(),
+            pubkey.to_hex()
+        );
+        if !self.is_sorted {
+            return Err(MuSigError::NotSorted);
+        }
+        match self.participants.binary_search(pubkey) {
+            Ok(i) => Ok(i),
+            Err(_) => Err(MuSigError::ParticipantNotFound),
+        }
+    }
+}
+
+#[derive(Debug, Error, PartialEq, Eq)]
+pub enum MuSigError {
+    // The number of public nonces must match the number of public keys in the joint key
+    MismatchedNonces,
+    // The number of partial signatures must match the numer of public keys in the joint key
+    MismatchedSignatures,
+    // The aggregate signature did not verify
+    InvalidSignature,
+    // The participant list must be sorted before making this call
+    NotSorted,
+    // The participant key is not in the list
+    ParticipantNotFound,
+}
+
+/// MuSig signature aggregation. [MuSig](https://blockstream.com/2018/01/23/musig-key-aggregation-schnorr-signatures/)
+/// is a 3-round signature aggregation protocol.
+/// 1. In the first round, participants share their public keys. From this set of keys, a
+/// [Joint Public Key](structs.JointKey.html) is constructed by all participants.
+/// 2. Participants then share a public nonce, \\( R_i \\), and all participants calculate the shared nonce,
+///   \\( R = \sum R_i \\).
+/// 3. Each participant then calculates a partial signature, with the final signature being the sum of all the
+/// partial signatures.
+///
+/// The `MuSig` struct facilitates the management of rounds 2 and 3. Use [JointKey](structs.JointKey.html) to manage
+/// Round 1.
+pub struct MuSig<P: PublicKey> {
+    joint_key: JointKey<P>,
+    public_nonces: Vec<P>,
+}
+
+impl<K, P> MuSig<P>
+where
+    K: SecretKey + Mul<P, Output = P>,
+    P: PublicKey<K = K>,
+{
+    fn new(joint_key: JointKey<P>) -> MuSig<P> {
+        unimplemented!()
+    }
+
+    fn add_public_nonce(r: P) {}
+
+    fn add_partial_signature(s: K) {}
+
+    fn calculate_my_partial_signature<S>(nonce: &K, secret: &K) -> S
+    where S: SchnorrSignature<Point = P, Scalar = K> {
+        unimplemented!()
+    }
+
+    fn calculate_agg_sig<S>() -> Result<S, MuSigError>
+    where S: SchnorrSignature<Point = P, Scalar = K> {
+        unimplemented!()
+    }
+
+    fn verify_signature() -> bool {
+        unimplemented!()
     }
 }
