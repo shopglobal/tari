@@ -81,6 +81,7 @@ mod test {
         let mut jk = JointKey::new();
         // Add keys in non-lexicographical order
         jk.add_keys(vec![p2, p1, p3].into_iter());
+        assert_eq!(jk.index_of(&p1).unwrap_err(), MuSigError::NotSorted);
         assert!(!jk.is_sorted());
         jk.sort_keys();
         assert!(jk.is_sorted());
