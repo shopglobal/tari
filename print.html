@@ -1,0 +1,1421 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>The Tari Network: RFC library</title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="The Tari network RFC library and documentation">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+        <!-- MathJax -->
+        <script async type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+            tex2jax: {
+            inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+            displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+            processEscapes: true
+            }
+          });
+        </script>
+        
+    </head>
+    <body class="light">
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">var path_to_root = "";</script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme = 'light';
+            document.body.className = theme;
+            document.querySelector('html').className = theme + ' js';
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <img src="theme/images/tari-splash.png" class="tlu">
+
+            <ol class="chapter"><li class="affix"><a href="about.html">About the Tari RFC documents</a></li><li><a href="RFC-0001_overview.html"><strong aria-hidden="true">1.</strong> RFC-0001: An overview of the Tari network</a></li><li><a href="RFC-0010_CodeStructure.html"><strong aria-hidden="true">2.</strong> RFC-0010: Tari code structure and organisation</a></li><li><a href="RFC-0100_BaseLayer.html"><strong aria-hidden="true">3.</strong> RFC-0100: The Tari Base Layer</a></li><li><ol class="section"><li><a href="RFC-0110_BaseNodes.html"><strong aria-hidden="true">3.1.</strong> RFC-0110: Base nodes</a></li><li><a href="RFC-0130_Mining.html"><strong aria-hidden="true">3.2.</strong> RFC-0130: Mining</a></li><li><a href="RFC-0140_Syncing_and_seeding.html"><strong aria-hidden="true">3.3.</strong> RFC-0140: Sync and Seeding</a></li><li><a href="RFC-0150_Wallets.html"><strong aria-hidden="true">3.4.</strong> RFC-0150: Wallets</a></li></ol></li><li><a href="RFC-0200_BaseLayerExtensions.html"><strong aria-hidden="true">4.</strong> RFC-0200: Tari-specific extensions to Mimblewimble</a></li><li><ol class="section"><li><a href="RFC-0210_NamespaceRegistration.html"><strong aria-hidden="true">4.1.</strong> RFC-0210: Namespace registration</a></li><li><a href="RFC-0220_AssetCheckpoints.html"><strong aria-hidden="true">4.2.</strong> RFC-0220: Asset checkpoints</a></li><li><a href="RFC-0230_HTLC.html"><strong aria-hidden="true">4.3.</strong> RFC-0230: Hash time locked contracts</a></li><li><a href="RFC-0322_VNRegistration.html"><strong aria-hidden="true">4.4.</strong> RFC-0322: Validator Node Registration</a></li><li><a href="RFC-0341_AssetRegistration.html"><strong aria-hidden="true">4.5.</strong> RFC-0341: Asset registration</a></li></ol></li><li><a href="RFC-0300_DAN.html"><strong aria-hidden="true">5.</strong> RFC-0300: The Digital Assets Network</a></li><li><a href="RFC-0320_ValidatorNodes.html"><strong aria-hidden="true">6.</strong> RFC-0320: Validator Nodes</a></li><li><ol class="section"><li><a href="RFC-0321_VNAssetDiscovery.html"><strong aria-hidden="true">6.1.</strong> RFC-0321: Asset discovery</a></li><li><a href="RFC-0322_VNRegistration.html"><strong aria-hidden="true">6.2.</strong> RFC-0322: Validator Node Registration</a></li><li><a href="RFC-0323_VNCommittees.html"><strong aria-hidden="true">6.3.</strong> RFC-0323: Validator Node committee selection</a></li><li><a href="RFC-0310_AssetTemplates.html"><strong aria-hidden="true">6.4.</strong> RFC-0310: Digital Asset templates</a></li><li><a href="RFC-0325_AssetReadAPI.html"><strong aria-hidden="true">6.5.</strong> RFC-0325: The asset read-only API</a></li></ol></li><li><a href="RFC-0340_VNConsensusOverview.html"><strong aria-hidden="true">7.</strong> RFC-0340: Validator Node Consensus</a></li><li><ol class="section"><li><a href="RFC-0341_AssetRegistration.html"><strong aria-hidden="true">7.1.</strong> RFC-0341: Asset registration</a></li><li><a href="RFC-0342_VNInstructions.html"><strong aria-hidden="true">7.2.</strong> RFC-0342: Validator node instructions</a></li><li><a href="RFC-0343_VNConsensusAlgorithm.html"><strong aria-hidden="true">7.3.</strong> RFC-0343: The VN consensus algorithm</a></li><li><a href="RFC-0344_VNAssetTransfer.html"><strong aria-hidden="true">7.4.</strong> RFC-0344: Asset transfer mechanism</a></li><li><a href="RFC-0345_VNAssetRetirement.html"><strong aria-hidden="true">7.5.</strong> RFC-0345: Asset retirement</a></li></ol></li><li><a href="RFC-0350_DisputeResolution.html"><strong aria-hidden="true">8.</strong> RFC-0350: DAN Dispute resolution mechanism</a></li><li><a href="RFC-0370_TariCollections.html"><strong aria-hidden="true">9.</strong> RFC-0370: Tari Collections</a></li><li><ol class="section"><li><a href="RFC-0371_TokenWallet.html"><strong aria-hidden="true">9.1.</strong> RFC-0371: Token wallet</a></li><li><a href="RFC-0372_TCP2PComm.html"><strong aria-hidden="true">9.2.</strong> RFC-0372: Tari Collections Peer-to-peer communication</a></li><li><a href="RFC-0373_TCInstructionAPI.html"><strong aria-hidden="true">9.3.</strong> RFC-0373: Instruction API</a></li><li><a href="RFC-0374_TCAssetManagement.html"><strong aria-hidden="true">9.4.</strong> RFC-0374: Asset Creation and management</a></li><li><a href="RFC-0375_TCWalletBridge.html"><strong aria-hidden="true">9.5.</strong> RFC-0375: Tari wallet bridge</a></li></ol></li><li><a href="RFC-0500_PaymentChannels.html"><strong aria-hidden="true">10.</strong> RFC-0500: Tari payment channels</a></li><li><ol class="section"><li><a href="RFC-0530_P2PPayments.html"><strong aria-hidden="true">10.1.</strong> RFC-0530: Peer-to-peer payments</a></li><li><a href="RFC-0550_VNFees.html"><strong aria-hidden="true">10.2.</strong> RFC-0550: Instruction fees</a></li></ol></li><li><a href="Glossary.html"><strong aria-hidden="true">11.</strong> Glossary</a></li></ol>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar" class="menu-bar">
+                    <div id="menu-bar-sticky-container">
+                        <div class="left-buttons">
+                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                                <i class="fa fa-bars"></i>
+                            </button>
+                            
+                            <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                                <i class="fa fa-search"></i>
+                            </button>
+                            
+                        </div>
+
+                        <h1 class="menu-title"><img src="theme/images/tari-horizontal-logo.png"/> </h1>
+
+                        <div class="right-buttons">
+                            <a href="print.html" title="Print this book" aria-label="Print this book">
+                                <i id="print-button" class="fa fa-print"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <a class="header" href="#the-tari-rfcs" id="the-tari-rfcs"><h1>The Tari RFCs</h1></a>
+<p>Tari is a community-driven project. The documents presented in this RFC collection have typically gone through several
+iterations before reaching this point:</p>
+<ul>
+<li>Ideas and questions are posted in #tari-dev on <a href="https://freenode.net/">#FreeNode IRC</a>. This is typically short-form
+content with rapid feedback. Often, these conversations will lead to someone posting a proposal as a <a href="https://github.com/tari-project/RFC/pulls" title="Tari RFC pull requests">pull request</a> into
+<a href="https://github.com/tari-project/RFC/tree/master/proposals" title="Tari proposals">proposals</a>.</li>
+<li><a href="https://github.com/tari-project/RFC/tree/master/proposals" title="Tari proposals">Proposals</a> get debated and refined using Github's Review and <a href="https://github.com/tari-project/RFC/pulls" title="Tari RFC pull requests">pull request</a> systems. After the content has
+stabilised, and the community accepts the proposal, it can be written up as a formal RFC.</li>
+<li>RFCs are &quot;Requests for Comment&quot;, so although the proposals in these documents are usually well-thought out, they are
+not cast in stone. RFCs can, and should, undergo further evaluation and discussion by the community. RFC comments are
+best made using Github <a href="https://github.com/tari-project/RFC/issues" title="Tari RFC Issues">issues</a>.</li>
+</ul>
+<p>New RFC's should follow the format given in the <a href="./RFC_template.html">RFC template</a>.</p>
+<a class="header" href="#lifecycle" id="lifecycle"><h2>Lifecycle</h2></a>
+<p>RFCs go through the following lifecycle, which roughly corresponds to the <a href="https://rfc.unprotocols.org/spec:2/COSS/">COSS</a>:</p>
+<table><thead><tr><th align="left"> Status      </th><th align="left">                                                   </th><th align="left"> Description                                                                                                                                                                                                         </th></tr></thead><tbody>
+<tr><td align="left"> Draft       </td><td align="left"> <img src="theme/images/status-draft.svg" alt="draft" />           </td><td align="left"> Changes, additions and revisions can be expected.                                                                                                                                                                   </td></tr>
+<tr><td align="left"> Stable      </td><td align="left"> <img src="theme/images/status-stable.svg" alt="stable" />         </td><td align="left"> Typographical and cosmetic changes aside, no further changes should be made. Changes to the Tari code base w.r.t. a stable RFC will lead to the RFC becoming out of date, deprecated, or retired.                   </td></tr>
+<tr><td align="left"> Out of date </td><td align="left"> <img src="theme/images/status-outofdate.svg" alt="out of date" /> </td><td align="left"> This RFC has become stale due to changes in the code base. Contributions will be accepted to make it stable again if the changes are relatively minor, otherwise it should eventually become deprecated or retired. </td></tr>
+<tr><td align="left"> Deprecated  </td><td align="left"> <img src="theme/images/status-deprecated.svg" alt="deprecated" /> </td><td align="left"> This RFC has been replaced by a newer RFC document, but is still is use in some places and/or versions of Tari.                                                                                                     </td></tr>
+<tr><td align="left"> Retired     </td><td align="left"> <img src="theme/images/status-retired.svg" alt="retired" />       </td><td align="left"> The RFC is no longer in use on the Tari network.                                                                                                                                                                    </td></tr>
+</tbody></table>
+<a class="header" href="#rfc-0001overview" id="rfc-0001overview"><h1>RFC-0001/Overview</h1></a>
+<a class="header" href="#an-overview-of-the-tari-network" id="an-overview-of-the-tari-network"><h2>An overview of the Tari network</h2></a>
+<p><img src="theme/images/status-draft.svg" alt="status: draft" /></p>
+<p><strong>Maintainer(s)</strong>: <a href="https://github.com/CjS77">Cayle Sharrock</a></p>
+<a class="header" href="#license" id="license"><h1>License</h1></a>
+<p><a href="https://opensource.org/licenses/BSD-3-Clause"> The 3-Clause BSD License</a>.</p>
+<p>Copyright 2018 The Tari Development Community</p>
+<p>Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+following conditions are met:</p>
+<ol>
+<li>Redistributions of this document must retain the above copyright notice, this list of conditions and the following
+disclaimer.</li>
+<li>Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
+disclaimer in the documentation and/or other materials provided with the distribution.</li>
+<li>Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products
+derived from this software without specific prior written permission.</li>
+</ol>
+<p>THIS DOCUMENT IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES,
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
+<a class="header" href="#language" id="language"><h2>Language</h2></a>
+<p>The key words &quot;MUST&quot;, &quot;MUST NOT&quot;, &quot;REQUIRED&quot;, &quot;SHALL&quot;, &quot;SHALL NOT&quot;, &quot;SHOULD&quot;, &quot;SHOULD NOT&quot;, &quot;RECOMMENDED&quot;,
+&quot;NOT RECOMMENDED&quot;, &quot;MAY&quot;, and &quot;OPTIONAL&quot; in this document are to be interpreted as described in
+<a href="https://tools.ietf.org/html/bcp14">BCP 14</a> (covering RFC2119 and RFC8174) when, and only when, they appear in all capitals, as
+shown here.</p>
+<a class="header" href="#disclaimer" id="disclaimer"><h2>Disclaimer</h2></a>
+<p>The purpose of this document and its content is for information purposes only and may be subject to change or update
+without notice.</p>
+<p>This document may include preliminary concepts that may or may not be in the process of being developed by the Tari
+community. The release of this document is intended solely for review and discussion by the community regarding the
+technological merits of the potential system outlined herein.</p>
+<a class="header" href="#goals" id="goals"><h2>Goals</h2></a>
+<p>The aim of this proposal is to provide a very high-level perspective for the moving parts involved in the Tari protocol.</p>
+<a class="header" href="#related-rfcs" id="related-rfcs"><h2>Related RFCs</h2></a>
+<ul>
+<li><a href="RFC-0100_BaseLayer.html">RFC-0100: Base layer</a></li>
+<li><a href="RFC-0300_DAN.html">RFC-0300: Digital asset network</a></li>
+<li><a href="RFC-0310_AssetTemplates.html">RFC-0310: Digital assets</a></li>
+</ul>
+<a class="header" href="#description" id="description"><h2>Description</h2></a>
+<a class="header" href="#abstract" id="abstract"><h3>Abstract</h3></a>
+<p>The Tari network is composed of two layers:</p>
+<ol>
+<li>The base layer deals with <a href="Glossary.html#transaction">Tari coin</a>s. It governed by a proof-of-work blockchain that is merged-mined with
+Monero. The base layer is highly secure, decentralised and relatively slow.</li>
+<li>The digital assets network runs on a second layer. This layer manages all things to do with native digital assets. It
+is built for liveness, speed and scalability at the expense of decentralisation.</li>
+</ol>
+<a class="header" href="#currency-tokens-and-digital-assets" id="currency-tokens-and-digital-assets"><h3>Currency tokens and digital assets</h3></a>
+<p>There are two major digital entities on the Tari network: The coins that are the unit of transfer for the Tari
+cryptocurrency, and the digital assets that could represent anything from tickets to in-game items.</p>
+<p>Tari coins are the fuel that drives the entire Tari ecosystem. But they share many of the properties of money, and so
+security is a non-negotiable requirement. In a cryptocurrency context, this is usually achieved by employing a
+decentralised network running a censorship-resistant protocol like Nakamoto consensus over a proof of work blockchain.
+As we know, proof of work blockchains are not scalable, or terribly fast.</p>
+<p>On the other hand, the Tari network will be used to create and manage digital assets.</p>
+<p>In Tari parlance, a digital asset is defined as a finite set of digital stateful tokens that are governed by predefined
+rules. A single digital asset may define anything from one to thousands of tokens within its scope.</p>
+<p>For example, in a ticketing context, an <em>event</em> will be an asset. The asset definition will allocate tokens representing
+the tickets for that event. The ticket tokens will have state, such as its current owner and whether it has been
+redeemed or not. Users might be interacting with digital assets hundreds of times a second, and state updates need to be
+propagated and agreed upon by the network very quickly. A blockchain-enabled ticketing system is practically useless if
+a user has to wait for &quot;3 block confirmations&quot; before the bouncer will let her into a venue. Users expect near-instant
+state updates because centralised solutions offer them that today.</p>
+<p>Therefore the Tari digital assets network must offer speed and scalability.</p>
+<a class="header" href="#two-layers" id="two-layers"><h4>Two layers</h4></a>
+<p>The <a href="https://en.wikipedia.org/wiki/CAP_theorem">distributed system trilemma</a> tells us that these requirements are
+mutually exclusive.</p>
+<p>We can't have fast, cheap digital assets and also highly secure and decentralised currency tokens on a single system.</p>
+<p>Tari overcomes this constraint by building two layers:</p>
+<ul>
+<li>A base layer that provides a public ledger of Tari coin transactions, secured by proof of work to maximise security, and</li>
+<li>A second layer that manages digital asset state that is very fast and cheap, at the expense of decentralisation.</li>
+</ul>
+<p>If required, the digital asset layer can refer back to the base layer to temporarily give up speed in exchange for
+increased security. This fallback is used to resolve consensus issues on the second layer that may crop up from time to
+time as a result of the lower degree of decentralisation.</p>
+<a class="header" href="#the-base-layer" id="the-base-layer"><h3>The Base Layer</h3></a>
+<p><em>Refer to <a href="RFC-0100_BaseLayer.html">RFC-0100/BaseLayer</a> for more detail</em>.</p>
+<p>The Tari base layer has the following primary features:</p>
+<ul>
+<li>Proof of work-based blockchain using Nakamoto consensus</li>
+<li>Transactions and blocks based on the <a href="Glossary.html#mimblewimble">Mimblewimble</a> protocol</li>
+</ul>
+<p><a href="Glossary.html#mimblewimble">Mimblewimble</a> is an exciting new blockchain protocol that offers some key advantages over other <a href="Glossary.html#unspent-transaction-outputs">UTXO</a>-based
+cryptocurrencies like Bitcoin:</p>
+<ul>
+<li>Transactions are private. This means that casual observers cannot ascertain the amounts being transferred or the
+identities of the parties involved.</li>
+<li>Mimblewimble employs a novel blockchain &quot;compression&quot; method called cut-through that dramatically reduces the
+storage requirements for blockchain nodes.</li>
+<li>Multi-signature transactions can be easily aggregated, making such transactions very compact, and completely hiding
+the parties involved, or the fact that there were multiple parties involved at all.</li>
+</ul>
+<blockquote>
+<p>&quot;Mimblewimble is the most sound, scalable 'base layer' protocol we know&quot; -- @fluffypony</p>
+</blockquote>
+<a class="header" href="#proof-of-work" id="proof-of-work"><h4>Proof of work</h4></a>
+<p>There are a few options for the proof of work mechanism for Tari:</p>
+<ul>
+<li>Implement an existing PoW mechanism. This is a bad idea, because a nascent cryptocurrency that uses a non-unique
+mining algorithm is incredibly vulnerable to a 51% attack from miners from other currencies using the same algorithm.
+Bitcoin Gold and Verge have already experienced this, and it's a <a href="https://www.crypto51.app/">matter of time</a> before it
+happens to others.</li>
+<li>Implement a unique PoW algorithm. This is a risky approach and comes close to breaking the #1 rule of
+cryptocurrency design: Never roll your own crypto.</li>
+<li><a href="https://tari-labs.github.io/tari-university/merged-mining/merged-mining-scene/MergedMiningIntroduction.html">Merge mining</a>.
+This approach is not without its own risks but offers the best trade-offs in terms of bootstrapping the network. It
+typically provides high levels of hash rate from day one along with 51% attack resistance assuming mining pools are
+well-distributed.</li>
+<li>A hybrid approach, utilising two or more of the above mechanisms.</li>
+</ul>
+<p>Given Tari's relationship with Monero, a merge-mined strategy with Monero makes the most sense, but the PoW mechanism
+SHOULD be written in a way that makes it relatively easy to code, implement and switch to a different strategy in the
+future.</p>
+<a class="header" href="#the-digital-assets-network" id="the-digital-assets-network"><h3>The Digital Assets Network</h3></a>
+<p>A more detailed proposal for the digital assets network is presented in <a href="RFC-0300_DAN.html">RFC-0300/DAN</a>. Digital assets
+<em>are discussed in more detail in <a href="RFC-0310_AssetTemplates.html">RFC-0310/Assets</a>.</em></p>
+<p>The Tari digital assets network (DAN) consists of a peer-to-peer network of <a href="Glossary.html#validator-node">Validator nodes</a>. These nodes ensure the
+safe and efficient operation of all native digital assets on the Tari network.</p>
+<p>Validator nodes are responsible for</p>
+<ul>
+<li><em>registering</em> themselves on the base layer.</li>
+<li>validating and executing the contracts that <em>create</em> and issue <em>new digital assets</em> on the network.</li>
+<li>validating and executing <em>instructions</em> for <em>changes in state</em> of digital assets, for example allowing the transfer of
+ownership of a token from one person to another.</li>
+<li><em>Maintaining consensus</em> with other validator nodes managing the same asset.</li>
+<li>submitting periodic <em>checkpoints</em> to the base layer for the state of assets under their management.</li>
+</ul>
+<p>The DAN is focused on achieving high speed and scalability, without compromising on security. To achieve
+this we make the explicit trade-off of sacrificing decentralisation.</p>
+<p>In many ways this is desirable, since the vast majority of assets (and their issuers) don't need or want <em>the entire
+network</em> to validate every state change in their asset contracts.</p>
+<p>Digital assets necessarily have <em>state</em>. Therefore the digital assets layer must have a means of synchronising and
+agreeing on state that is managed simultaneously by multiple servers (a.k.a. reaching consensus).</p>
+<p>Please refer to Tari Labs University for detailed discussions on
+<a href="https://tlu.tarilabs.com/layer2scaling/layer2scaling-landscape/layer2scaling-survey.html">layer 2 scaling solutions</a>
+and
+<a href="https://tlu.tarilabs.com/consensus-mechanisms/BFT-consensus-mechanisms-applications/Introduction.html">consensus mechanisms</a>.</p>
+<a class="header" href="#interaction-between-the-base-layer-and-the-dan" id="interaction-between-the-base-layer-and-the-dan"><h3>Interaction between the base layer and the DAN</h3></a>
+<p>The base layer provides supporting services to the digital asset network. In general, the base layer only knows about
+Tari coin transactions. It knows nothing about the details of any digital assets and their state.</p>
+<p>This is by design: The network cannot scale if details of digital asset contracts have to be tracked on the base layer.
+We envisage that there could be tens of thousands of contracts deployed on Tari. Some of those contracts may be enormous;
+imagine controlling every piece of inventory and their live statistics for a MMORPG. The base layer is also too slow. If
+<em>any</em> state relies on base layer transactions being confirmed, there is an immediate lag before that state change can be
+considered final, which kills the liveness properties we seek for the DAN.</p>
+<p>It's better to keep the two networks almost totally decoupled from the outset, and allow each network to play to its
+strength.</p>
+<p>That said, there are key interactions between the two layers. The base layer is a ledger and so it can be used as a
+source of truth for the DAN to use as a type of registrar as well as final court of appeal in the case of consensus
+disputes. This is what gives the DAN a secure fallback in case bad actors try to manipulate asset state by taking
+advantage of its non-decentralisation.</p>
+<p>These interactions require making provision for additional transaction types, in addition to payment and coinbase
+transactions, that mark validator node registrations, contract collateral and so on.</p>
+<p>The interplay between base layer and DAN is what incentivises every actor in the system to maintain an efficient and
+well-functioning network even while acting in their own self-interests.</p>
+<a class="header" href="#summary" id="summary"><h3>Summary</h3></a>
+<p>Table 1 summarises the defining characteristics of the Tari network layers:</p>
+<table><thead><tr><th align="left">                                      </th><th align="left"> Base layer       </th><th align="left"> DAN                    </th></tr></thead><tbody>
+<tr><td align="left"> Speed                                </td><td align="left"> Slow             </td><td align="left"> Fast                   </td></tr>
+<tr><td align="left"> Scalability                          </td><td align="left"> Moderate         </td><td align="left"> Very high              </td></tr>
+<tr><td align="left"> Security                             </td><td align="left"> High             </td><td align="left"> Mod (High w/ fallback) </td></tr>
+<tr><td align="left"> Decentralisation                     </td><td align="left"> High             </td><td align="left"> Low - Med              </td></tr>
+<tr><td align="left"> Processes Tari coin transactions     </td><td align="left"> Yes              </td><td align="left"> No                     </td></tr>
+<tr><td align="left"> Processes digital asset instructions </td><td align="left"> Only checkpoints </td><td align="left"> Yes                    </td></tr>
+</tbody></table>
+<a class="header" href="#rfc-0010codestructure" id="rfc-0010codestructure"><h1>RFC-0010/CodeStructure</h1></a>
+<a class="header" href="#tari-code-structure-and-organisation" id="tari-code-structure-and-organisation"><h2>Tari code structure and organisation</h2></a>
+<p><img src="theme/images/status-draft.svg" alt="status: draft" /></p>
+<p><strong>Maintainer(s)</strong>: <a href="https://github.com/CjS77">Cayle Sharrock</a></p>
+<a class="header" href="#license-1" id="license-1"><h1>License</h1></a>
+<p><a href="https://opensource.org/licenses/BSD-3-Clause"> The 3-Clause BSD License</a>.</p>
+<p>Copyright <YEAR> &lt;COPYRIGHT HOLDER | The Tari Development Community&gt;</p>
+<p>Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+following conditions are met:</p>
+<ol>
+<li>Redistributions of this document must retain the above copyright notice, this list of conditions and the following
+disclaimer.</li>
+<li>Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
+disclaimer in the documentation and/or other materials provided with the distribution.</li>
+<li>Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products
+derived from this software without specific prior written permission.</li>
+</ol>
+<p>THIS DOCUMENT IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES,
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
+<a class="header" href="#language-1" id="language-1"><h2>Language</h2></a>
+<p>The key words &quot;MUST&quot;, &quot;MUST NOT&quot;, &quot;REQUIRED&quot;, &quot;SHALL&quot;, &quot;SHALL NOT&quot;, &quot;SHOULD&quot;, &quot;SHOULD NOT&quot;, &quot;RECOMMENDED&quot;,
+&quot;NOT RECOMMENDED&quot;, &quot;MAY&quot;, and &quot;OPTIONAL&quot; in this document are to be interpreted as described in
+<a href="https://tools.ietf.org/html/bcp14">BCP 14</a> (covering RFC2119 and RFC8174) when, and only when, they appear in all capitals, as
+shown here.</p>
+<a class="header" href="#disclaimer-1" id="disclaimer-1"><h2>Disclaimer</h2></a>
+<p>The purpose of this document and its content is for information purposes only and may be subject to change or update
+without notice.</p>
+<p>This document may include preliminary concepts that may or may not be in the process of being developed by the Tari
+community. The release of this document is intended solely for review and discussion by the community regarding the
+technological merits of the potential system outlined herein.</p>
+<a class="header" href="#goals-1" id="goals-1"><h2>Goals</h2></a>
+<p>This RFC describes and explains the Tari codebase layout.</p>
+<a class="header" href="#related-rfcs-1" id="related-rfcs-1"><h2>Related RFCs</h2></a>
+<p>None.</p>
+<a class="header" href="#description-1" id="description-1"><h2>Description</h2></a>
+<p>The code follows a Domain-Driven Design layout (<a href="https://en.wikipedia.org/wiki/Domain-driven_design" title="Wikipedia: Domain Driven Design">DDD</a>), with top-level directories falling into infrastructure, domain
+and application layers.</p>
+<a class="header" href="#infrastructure-layer" id="infrastructure-layer"><h3>Infrastructure layer</h3></a>
+<p>This layer provides a set of crates which have general infrastructural utility. The rest of the Tari codebase can make use
+of these crates to obtain persistence, communication and cryptographic services. The infrastructure layer doesn't know
+anything about blockchains, transactions, or digital assets.</p>
+<p>We recommend that code in this layer generalises infrastructure services behind abstraction layers as much as is
+reasonable, so that specific implementations can be swapped out with relative ease.</p>
+<a class="header" href="#domain-layer" id="domain-layer"><h3>Domain layer</h3></a>
+<p>The Domain layer houses the Tari &quot;business logic&quot;. All protocol-related concepts and procedures are defined and
+implemented here.</p>
+<p>This entails that any and all terms defined in the <a href="../Glossary.html" title="Glossary">Glossary</a> will have a software implementation here, and only here.
+They can be <em>used</em> in the Application layer, but must be implemented in the Domain layer.</p>
+<p>The domain layer can make use of crates in the infrastructure layer to achieve its goals.</p>
+<a class="header" href="#application-layer" id="application-layer"><h3>Application layer</h3></a>
+<p>Applications build on top of the domain layer to produce the executable software that is deployed as part of the Tari
+network.</p>
+<p>As an example, the following base layer applications may be developed as part of the Tari protocol release:</p>
+<ul>
+<li>A standalone miner (tari_miner)</li>
+<li>A pool miner (tari_pool_miner)</li>
+<li>A CLI wallet for the Tari cryptocurrency (cli_wallet)</li>
+<li>A base node executable (tari_basenode)</li>
+<li>A REST API server for the base node</li>
+</ul>
+<a class="header" href="#code-layout" id="code-layout"><h3>Code layout</h3></a>
+<p>The top-level source code directories in this repository reflect the respective <a href="https://en.wikipedia.org/wiki/Domain-driven_design" title="Wikipedia: Domain Driven Design">DDD</a> layers; except that there are two
+domain layer directories, corresponding to the two network layers that make up the Tari network.</p>
+<ol>
+<li>The <code>infrastructure</code> directory contains application-layer code and is not Tari-specific. It holds the following
+crates:
+<ul>
+<li><code>comms</code>: The networking and messaging subsystem</li>
+<li><code>crypto</code>: All cryptographic services, including a Curve25519 implementation</li>
+<li><code>storage</code>: Data persistence services, including an LMDB persistence implementation</li>
+</ul>
+</li>
+<li><code>base_layer</code> is a domain-layer directory and contains:
+<ul>
+<li><code>blockchain</code>: The Tari consensus code</li>
+<li><code>core</code>: common classes and traits, such as <a href="../Glossary.html#transaction">Transaction</a>s and <a href="../Glossary.html#block">Block</a>s</li>
+<li><code>mempool</code>: The unconfirmed transaction pool implementation</li>
+<li><code>mining</code>: The merge-mining modules</li>
+<li><code>p2p</code>: The block and transaction propagation module</li>
+<li><code>api</code>: interfaces for clients and wallets to interact with the base layer components</li>
+</ul>
+</li>
+<li><code>digital_assets_layer</code> is a domain-layer directory. It contains code related to the management of native Tari digital
+assets.
+<ul>
+<li>Its sub-structure is TBD.</li>
+</ul>
+</li>
+<li><code>applications</code> contains crates for all the application-layer executables that form part of the Tari codebase.</li>
+</ol>
+<a class="header" href="#rfc-0100baselayer" id="rfc-0100baselayer"><h1>RFC-0100/BaseLayer</h1></a>
+<a class="header" href="#the-tari-base-layer" id="the-tari-base-layer"><h2>The Tari Base Layer</h2></a>
+<p><img src="theme/images/status-draft.svg" alt="status: draft" /></p>
+<p><strong>Maintainer(s)</strong>: <a href="https://github.com/CjS77">Cayle Sharrock</a></p>
+<a class="header" href="#license-2" id="license-2"><h1>License</h1></a>
+<p><a href="https://opensource.org/licenses/BSD-3-Clause"> The 3-Clause BSD License</a>.</p>
+<p>Copyright 2018 The Tari Development Community</p>
+<p>Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+following conditions are met:</p>
+<ol>
+<li>Redistributions of this document must retain the above copyright notice, this list of conditions and the following
+disclaimer.</li>
+<li>Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
+disclaimer in the documentation and/or other materials provided with the distribution.</li>
+<li>Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products
+derived from this software without specific prior written permission.</li>
+</ol>
+<p>THIS DOCUMENT IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES,
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
+<a class="header" href="#language-2" id="language-2"><h2>Language</h2></a>
+<p>The key words &quot;MUST&quot;, &quot;MUST NOT&quot;, &quot;REQUIRED&quot;, &quot;SHALL&quot;, &quot;SHALL NOT&quot;, &quot;SHOULD&quot;, &quot;SHOULD NOT&quot;, &quot;RECOMMENDED&quot;,
+&quot;NOT RECOMMENDED&quot;, &quot;MAY&quot;, and &quot;OPTIONAL&quot; in this document are to be interpreted as described in
+<a href="https://tools.ietf.org/html/bcp14">BCP 14</a> (covering RFC2119 and RFC8174) when, and only when, they appear in all capitals, as
+shown here.</p>
+<a class="header" href="#disclaimer-2" id="disclaimer-2"><h2>Disclaimer</h2></a>
+<p>The purpose of this document and its content is for information purposes only and may be subject to change or update
+without notice.</p>
+<p>This document may include preliminary concepts that may or may not be in the process of being developed by the Tari
+community. The release of this document is intended solely for review and discussion by the community regarding the
+technological merits of the potential system outlined herein.</p>
+<a class="header" href="#goals-2" id="goals-2"><h2>Goals</h2></a>
+<p>This document describes the major software components of the Tari Base Layer network.</p>
+<a class="header" href="#related-rfcs-2" id="related-rfcs-2"><h2>Related RFCs</h2></a>
+<ul>
+<li><a href="RFC-0001_overview.html">RFC-0001: Overview</a></li>
+<li><a href="./RFC-0110_BaseNodes.html">RFC-0110: Base Nodes</a></li>
+<li><a href="./RFC-0130_Mining.html">RFC-0130: Mining</a></li>
+<li><a href="./RFC-0150_Wallets.html">RFC-0150: Wallets</a></li>
+</ul>
+<a class="header" href="#description-2" id="description-2"><h2>Description</h2></a>
+<p>The Tari Base Layer network comprises the following major pieces of software:</p>
+<ul>
+<li>Base Layer full node implementation - The base layer full nodes are the consensus-critical pieces of software for the
+Tari base layer and cryptocurrency. The base nodes validate and transmit transactions and blocks and maintain
+consensus about the longest valid proof-of-work blockchain.</li>
+<li>Mining software - Mining nodes perform proof-of-work to secure the base layer and compete to submit the
+next valid block into the Tari blockchain. Tari is merge-mined with Monero. The Tari source provides two alternatives
+for Tari miners:
+<ul>
+<li>A standalone miner</li>
+<li>A stratum-compatible pool miner.</li>
+</ul>
+</li>
+<li>Wallet software - Client software and APIs offering means to construct transactions, query nodes for information and
+maintain personal private keys</li>
+</ul>
+<p>These three main pieces of software make use of common functionality provided by the following libraries within the Tari
+project source code:</p>
+<ul>
+<li>Local data storage</li>
+<li>Cryptography services</li>
+<li>Peer-to-peer networking and messaging services</li>
+</ul>
+<p><a href="RFC-0010_CodeStructure.html">RFC-0010</a> provides more detail on how the source code is structured within the Tari codebase.</p>
+<a class="header" href="#rfc-0110basenodes" id="rfc-0110basenodes"><h1>RFC-0110/BaseNodes</h1></a>
+<a class="header" href="#base-layer-full-nodes-base-nodes" id="base-layer-full-nodes-base-nodes"><h2>Base Layer Full Nodes (Base Nodes)</h2></a>
+<p><img src="theme/images/status-draft.svg" alt="status: draft" /></p>
+<p><strong>Maintainer(s)</strong>: <a href="https://github.com/CjS77">Cayle Sharrock</a> <a href="https://github.com/SWvheerden">SW van heerden</a></p>
+<a class="header" href="#license-3" id="license-3"><h1>License</h1></a>
+<p><a href="https://opensource.org/licenses/BSD-3-Clause"> The 3-Clause BSD License</a>.</p>
+<p>Copyright 2018 The Tari Development Community</p>
+<p>Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+following conditions are met:</p>
+<ol>
+<li>Redistributions of this document must retain the above copyright notice, this list of conditions and the following
+disclaimer.</li>
+<li>Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
+disclaimer in the documentation and/or other materials provided with the distribution.</li>
+<li>Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products
+derived from this software without specific prior written permission.</li>
+</ol>
+<p>THIS DOCUMENT IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES,
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
+<a class="header" href="#language-3" id="language-3"><h2>Language</h2></a>
+<p>The key words &quot;MUST&quot;, &quot;MUST NOT&quot;, &quot;REQUIRED&quot;, &quot;SHALL&quot;, &quot;SHALL NOT&quot;, &quot;SHOULD&quot;, &quot;SHOULD NOT&quot;, &quot;RECOMMENDED&quot;,
+&quot;NOT RECOMMENDED&quot;, &quot;MAY&quot;, and &quot;OPTIONAL&quot; in this document are to be interpreted as described in
+<a href="https://tools.ietf.org/html/bcp14">BCP 14</a> (covering RFC2119 and RFC8174) when, and only when, they appear in all capitals, as
+shown here.</p>
+<a class="header" href="#disclaimer-3" id="disclaimer-3"><h2>Disclaimer</h2></a>
+<p>The purpose of this document and its content is for information purposes only and may be subject to change or update
+without notice.</p>
+<p>This document may include preliminary concepts that may or may not be in the process of being developed by the Tari
+community. The release of this document is intended solely for review and discussion by the community regarding the
+technological merits of the potential system outlined herein.</p>
+<a class="header" href="#goals-3" id="goals-3"><h2>Goals</h2></a>
+<p>This document describes the roles that <a href="Glossary.html#base-node">base node</a>s play in the Tari network and their general approach for doing so.</p>
+<a class="header" href="#related-rfcs-3" id="related-rfcs-3"><h2>Related RFCs</h2></a>
+<ul>
+<li><a href="RFC-0100_BaseLayer.html">RFC-0100: Base layer</a></li>
+</ul>
+<a class="header" href="#description-3" id="description-3"><h2>Description</h2></a>
+<a class="header" href="#broad-requirements" id="broad-requirements"><h3>Broad requirements</h3></a>
+<p>Tari Base Nodes form a peer-to-peer network for a proof-of-work based blockchain running the <a href="Glossary.html#mimblewimble">Mimblewimble</a>
+protocol. The proof of work is performed via merge mining with Monero. Arguments for this design are
+presented <a href="RFC-0001_overview.html#proof-of-work">in the overview</a>.</p>
+<p>Tari Base Nodes MUST carry out the following tasks:</p>
+<ul>
+<li>Validate all <a href="Glossary.html#transaction">Tari coin</a>s.</li>
+<li>Propagate valid transactions to peer nodes.</li>
+<li>Validate all new <a href="Glossary.html#block">block</a>s received.</li>
+<li>Propagate validated new blocks to peer nodes.</li>
+<li>Connect to peer nodes to catch up (sync) its blockchain state.</li>
+<li>Provide historical block information to peers that are syncing.</li>
+</ul>
+<p>Once the Digital Assets Network goes live, Base Nodes will also need to support the tasks described in
+<a href="RFC-0300_DAN.html">RFC-0300/Assets</a>. These requirements are omitted for the moment.</p>
+<p>To carry out these tasks effectively, Base Nodes SHOULD:</p>
+<ul>
+<li>Save the <a href="Glossary.html#blockchain">blockchain</a> into a indexed local database.</li>
+<li>Maintain an index of all unspent outputs (<a href="Glossary.html#unspent-transaction-outputs">UTXO</a>s).</li>
+<li>Maintain a list of all pending, valid transactions that have not yet been mined (the <a href="Glossary.html#mempool">mempool</a>).</li>
+<li>Manage a list of Base Node peers present on the network.</li>
+</ul>
+<p>Tari Base nodes MAY implement chain pruning strategies that are features of Mimblewimble, including transaction
+<a href="https://tlu.tarilabs.com/protocols/grin-protocol-overview/MainReport.html#mimblewimble-protocol-overview">cut-through and block compaction techniques</a>.</p>
+<p>Tari Base Nodes MAY also implement the following services via an API to clients. Such clients may include &quot;light&quot;
+clients, block explorers, wallets, and Tari applications:</p>
+<ul>
+<li>Block queries.</li>
+<li>Kernel data queries.</li>
+<li>Transaction queries.</li>
+<li>Submission of new transactions.</li>
+</ul>
+<a class="header" href="#transaction-validation-and-propagation" id="transaction-validation-and-propagation"><h3>Transaction validation and propagation</h3></a>
+<p>Base nodes can be notified of new transactions by</p>
+<ul>
+<li>connected peers.</li>
+<li>clients via APIs.</li>
+</ul>
+<p>When a new transaction has been received, it has the <code>unvalidated</code> <a href="Glossary.html#validationstate">ValidationState</a>. The transaction is then passed
+to the transaction validation service, where its state will become either <code>rejected</code>, <code>timelocked</code> or <code>validated</code>.</p>
+<p>The transaction validation service checks that:</p>
+<ul>
+<li>all inputs to the transaction are valid <a href="Glossary.html#unspent-transaction-outputs">UTXO</a>s.</li>
+<li>no inputs are duplicated.</li>
+<li>all inputs are able to be spent (they're not time-locked).</li>
+<li>all inputs are signed by their owners.</li>
+<li>all outputs have valid <a href="Glossary.html#range-proof">range proof</a>s.</li>
+<li>no outputs currently exist in the <a href="Glossary.html#unspent-transaction-outputs">UTXO</a> set.</li>
+<li>the transaction does not have a timelock applied, limiting it from being added to the blockchain before a specified block height or timestamp has been reached.</li>
+<li>the transaction excess has a valid signature.</li>
+<li>the transaction excess is a valid public key. This proves that:
+$$ \Sigma \left( \mathrm{inputs} - \mathrm{outputs} - \mathrm{fees} \right) = 0 $$</li>
+</ul>
+<p><code>Rejected</code> transactions are dropped silently.</p>
+<p><code>Timelocked</code> transactions are:</p>
+<ul>
+<li>marked with a timelocked status and gets added to the <a href="Glossary.html#mempool">mempool</a>.</li>
+<li>will be evaluated again at a later state to determine if the timelock has passed and if it can be upgraded to 'Validated' status.</li>
+</ul>
+<p><code>Validated</code> transactions are:</p>
+<ul>
+<li>Added to the <a href="Glossary.html#mempool">mempool</a>.</li>
+<li>forwarded to peers using the transaction <a href="Glossary.html#broadcaststrategy">BroadcastStrategy</a>.</li>
+</ul>
+<a class="header" href="#block-validation-and-propagation" id="block-validation-and-propagation"><h3>Block validation and propagation</h3></a>
+<p>The Block validation and propagation process is analogous to that of transactions.</p>
+<p>New blocks are received from the peer-to-peer network, or from an API call if the Base Node is connected to a Miner.</p>
+<p>When a new block is received, it is assigned the <code>unvalidated</code> <a href="Glossary.html#validationstate">ValidationState</a>. The block is then passed to the
+block validation service.  The validation service checks that</p>
+<ul>
+<li>the block hasn't been processed before.</li>
+<li>every <a href="Glossary.html#transaction">transaction</a> in the block is valid.</li>
+<li>the proof-of-work is valid.</li>
+<li>the block header is well-formed.</li>
+<li>the block is being added to the chain with the highest accumulated proof-of-work.
+<ul>
+<li>it is possible for the chain to temporarily fork; base nodes SHOULD account for forks up to some configured depth.</li>
+<li>it is possible that blocks may be received out of order; particularly while syncing. Base Nodes SHOULD keep blocks.
+that have block heights greater than the current chain tip in memory for some preconfigured period.</li>
+</ul>
+</li>
+<li>the sum of all excesses is a valid public key. This proves that:
+$$ \Sigma \left( \mathrm{inputs} - \mathrm{outputs} - \mathrm{fees} \right) = 0$$</li>
+<li>check if <a href="RFC-0140_Syncing.html#Pruning-and-cut-through">cut-through</a> was applied. If a block contains already spent outputs, reject that block.</li>
+</ul>
+<p>Because MimbleWimble blocks can be simple be seen as large transactions with multiple inputs and outputs, the block validation service checks all transaction verification on the block as well.</p>
+<p><code>Rejected</code> blocks are dropped silently.</p>
+<p>Base Nodes are not obliged to accept connections from any peer node on the network. In particular:</p>
+<ul>
+<li>Base Nodes MAY refuse connections from peers that have been added to a blacklist.</li>
+<li>Base Nodes MAY be configured to exclusively connect to a given set of peer nodes.</li>
+</ul>
+<p><code>Validated</code> blocks are</p>
+<ul>
+<li>added to the <a href="Glossary.html#blockchain">blockchain</a>.</li>
+<li>forwarded to peers using the block <a href="Glossary.html#broadcaststrategy">BroadcastStrategy</a>.</li>
+</ul>
+<p>In addition, when a block has been validated and added to the blockchain:</p>
+<ul>
+<li>The mempool MUST also remove all transactions that are present in the newly validated block.</li>
+<li>The UTXO set MUST be updated; removing all inputs in the block, and adding all the new outputs in it.</li>
+</ul>
+<a class="header" href="#synchronising-and-pruning-of-the-chain" id="synchronising-and-pruning-of-the-chain"><h3>Synchronising and pruning of the chain</h3></a>
+<p>Syncing, pruning and cut-through is discussed in detail in <a href="RFC-0140_Syncing.html">RFC-0140</a></p>
+<a class="header" href="#archival-nodes" id="archival-nodes"><h3>Archival nodes</h3></a>
+<p><a href="archivenode">Archival nodes</a> are used to keep a complete history of the blockchain since genesis block, they do not employ pruning at all. These nodes will allow full syncing of the blockchain because normal nodes will not keep the full history to enable this.</p>
+<a class="header" href="#rfc-0130mining" id="rfc-0130mining"><h1>RFC-0130/Mining</h1></a>
+<a class="header" href="#full-node-mining-on-tari-base-layer" id="full-node-mining-on-tari-base-layer"><h2>Full-node mining on Tari base layer</h2></a>
+<p><img src="theme/images/status-draft.svg" alt="status: draft" /></p>
+<p><strong>Maintainer(s)</strong>: [Yuko Roodt] (https://github.com/neonknight64)</p>
+<a class="header" href="#license-4" id="license-4"><h1>License</h1></a>
+<p><a href="https://opensource.org/licenses/BSD-3-Clause"> The 3-Clause BSD License</a>.</p>
+<p>Copyright 2018 The Tari Development Community</p>
+<p>Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+following conditions are met:</p>
+<ol>
+<li>Redistributions of this document must retain the above copyright notice, this list of conditions and the following
+disclaimer.</li>
+<li>Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
+disclaimer in the documentation and/or other materials provided with the distribution.</li>
+<li>Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products
+derived from this software without specific prior written permission.</li>
+</ol>
+<p>THIS DOCUMENT IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES,
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
+<a class="header" href="#language-4" id="language-4"><h2>Language</h2></a>
+<p>The key words &quot;MUST&quot;, &quot;MUST NOT&quot;, &quot;REQUIRED&quot;, &quot;SHALL&quot;, &quot;SHALL NOT&quot;, &quot;SHOULD&quot;, &quot;SHOULD NOT&quot;, &quot;RECOMMENDED&quot;,
+&quot;NOT RECOMMENDED&quot;, &quot;MAY&quot;, and &quot;OPTIONAL&quot; in this document are to be interpreted as described in
+<a href="https://tools.ietf.org/html/bcp14">BCP 14</a> (covering RFC2119 and RFC8174) when, and only when, they appear in all
+capitals, as shown here.</p>
+<a class="header" href="#disclaimer-4" id="disclaimer-4"><h2>Disclaimer</h2></a>
+<p>The purpose of this document and its content is for information purposes only and may be subject to change or update
+without notice.</p>
+<p>This document may include preliminary concepts that may or may not be in theprocess of being developed by the Tari
+community. The release of this document is intended solely for review and discussion by the community regarding the
+technological merits of the potential system outlined herein.</p>
+<a class="header" href="#goals-4" id="goals-4"><h2>Goals</h2></a>
+<p>This document will provide a brief overview of the Tari merged mining process and will introduce the primary
+functionality required of the Mining Server and Mining Worker.</p>
+<a class="header" href="#related-rfcs-4" id="related-rfcs-4"><h2>Related RFCs</h2></a>
+<ul>
+<li><a href="RFC-0100_BaseLayer.html">RFC-0100: Base layer</a></li>
+<li><a href="RFC-0110_BaseNodes.html">RFC-0110: Base nodes</a></li>
+</ul>
+<a class="header" href="#description-4" id="description-4"><h2>Description</h2></a>
+<a class="header" href="#assumptions" id="assumptions"><h3>Assumptions</h3></a>
+<ul>
+<li>That the Tari <a href="Glossary.html#blockchain">blockchain</a> will be merged mined with Monero.</li>
+<li>The Tari <a href="Glossary.html#base-layer">Base Layer</a> has a network of <a href="Glossary.html#base-node">Base Node</a>s that verify and propagate valid <a href="Glossary.html#transaction">transaction</a>s and <a href="Glossary.html#block">block</a>s.</li>
+</ul>
+<a class="header" href="#abstract-1" id="abstract-1"><h3>Abstract</h3></a>
+<p>The process of merged mining Tari with Monero on the Tari Base Layer is performed by <a href="Glossary.html#mining-server">Mining Server</a>s and <a href="Glossary.html#mining-worker">Mining
+Worker</a>s. Mining Servers are responsible for constructing new blocks by bundling transactions from the <a href="Glossary.html#mempool">mempool</a>
+of a connected Base Node. They then distribute Proof-of-Work(PoW) tasks to Mining Workers in an attempt to solve
+newly created blocks. Solved solutions and shares are sent by the Mining Workers to the Mining Server, who in turns
+verifies the solution and distributes the newly created blocks to the Base Node and Monero Node for inclusion in
+their respective blockchains.</p>
+<a class="header" href="#merged-mining-on-the-tari-base-layer" id="merged-mining-on-the-tari-base-layer"><h3>Merged mining on the Tari Base Layer</h3></a>
+<p>This document is divided into three parts. First, a brief overview of the merged mining process and the interactions
+between the Base Node, Mining Server and Mining Worker will be provided, then the primary functionality required
+of the Mining Server and Mining Worker will be proposed.</p>
+<a class="header" href="#overview-of-the-tari-merged-mining-process-using-mining-servers-and-mining-workers" id="overview-of-the-tari-merged-mining-process-using-mining-servers-and-mining-workers"><h4>Overview of the Tari merged mining process using Mining Servers and Mining Workers</h4></a>
+<p>Mining on the Tari Base Layer consists of three primary entities: the Base Nodes, Mining Servers and Mining Workers.
+A description of the Base Node is provided in [RFC-0110/Base Nodes] (https://tari-project.github.io/tari/RFC-0110_BaseNodes.html).
+A Mining Server is connected locally or remotely to a Tari Base Node and a Monero Node, and is responsible for
+constructing Tari and Monero Blocks from their respective mempools. The Mining Server should retrieve transactions
+from the mempool of the connected Base Node and assemble a new Tari block by bundling transactions together.</p>
+<p>Mining servers may re-verify transactions before including them in a new Tari block, but this enforcement of
+verification and transaction rules such as signatures and timelocks are the responsibility of the connected Base node. Mining servers are responsible for <a href="RFC-0140_Syncing.html#Pruning-and-cut-through">cut-through</a> as this is required for scalability and privacy.</p>
+<p>To enable Merged mining of Tari with Monero, both a Tari and a Monero block needs to be created and linked. First,
+a new Tari block is created and then the block header hash of the new Tari block is included in the coinbase
+transaction of the new Monero block. Once a new merged mined Monero block has been constructed, PoW tasks can then
+be sent to the connected Mining Workers that will attempt to solve the block by performing the latest released
+version of the PoW algorithm selected by Monero.</p>
+<p>Assuming the Tari difficulty is less than the Monero difficulty, miners get rewarded for solving the PoW at any
+difficulty above the Tari difficulty. If the block is solved above the Tari difficulty, a new Tari block is mined.
+If the difficulty is also greater than the Monero difficulty, a new Monero block is mined as well. In either event,
+the header for the candidate Monero block is included in the Tari block header.</p>
+<p>If the PoW solution was sufficient to meet the difficult level of both the Tari and Monero blockchains, then the
+individual blocks for each blockchain can be sent from the Mining Server to the Base Node and Monero Node to be
+added to the respective blockchains.</p>
+<p>Every Tari block must include the solved Monero block’s information (block header hash, Merkle tree branch, and
+hash of the coinbase transaction) into the PoW summary section of the Tari block header.
+If the PoW solution found by the Mining Workers only solved the problem at the Tari difficulty, the Monero block can be discarded.</p>
+<p>This process will ensure that the Tari difficulty remains independent. Adjusting the difficulty will ensure that
+the Tari block times are preserved. Also, the Tari block time can be less than, equal
+or greater than the Monero block times. A more detailed description of the Merged Mining process between a Primary
+and Auxiliary blockchain is provided in the [Merged Mining TLU report] (https://tlu.tarilabs.com/merged-mining/merged-mining.html).</p>
+<a class="header" href="#functionality-required-by-the-tari-mining-server" id="functionality-required-by-the-tari-mining-server"><h4>Functionality required by the Tari Mining Server</h4></a>
+<ul>
+<li>The Tari blockchain MUST have the ability to be merged mined with Monero.</li>
+<li>The Mining Server MUST maintain a local or remote connection with a Base Node and a Monero Node.</li>
+<li>It MUST have a mechanism to construct a new Tari and Monero block by selecting transactions from the different
+Tari and Monero mempools that need to be included in the different blocks.</li>
+<li>It MUST apply <a href="RFC-0140_Syncing.html#Pruning-and-cut-through">cut-through</a> when mining Tari transactions from the <a href="Glossary.html#mempool">mempool</a> and only add the excess to the list of new  Tari block transactions.</li>
+<li>It MAY have a configurable transaction selection mechanism for the block construction process.</li>
+<li>It MAY have the ability to re-verify transactions before including them in a new Tari block.</li>
+<li>It MUST have the ability to include the block header hash of the new Tari block into the coinbase section of a
+newly created Monero block to enable merged mining.</li>
+<li>It MUST be able to include the Monero block header hash, Merkle tree branch and hash of the coinbase transaction
+of the Monero block into the PoW summary field of the new Tari block header.</li>
+<li>It MUST have the ability to transmit and distribute PoW tasks for the newly created Monero block, that contains
+the Tari block information, to connected Mining Workers.</li>
+<li>It MUST verify PoW solutions received from Mining Workers and it MUST reject and discard invalid solutions or
+solutions that do not meet the minimum required difficulty.</li>
+<li>The Mining Server MAY keep track of mining share contributions of the connected Mining Workers.</li>
+<li>It MUST submit completed Tari blocks to the Tari Base Node.</li>
+<li>It MUST submit completed Monero blocks to the Monero Network.</li>
+</ul>
+<a class="header" href="#functionality-required-by-the-tari-mining-worker" id="functionality-required-by-the-tari-mining-worker"><h4>Functionality required by the Tari Mining Worker</h4></a>
+<ul>
+<li>It MUST maintain a local or remote connection to a Mining Server.</li>
+<li>It MUST have the ability to receive PoW tasks from the connected Mining Server.</li>
+<li>It MUST have the ability to perform the latest released version of Monero's PoW algorithm on the received PoW tasks.</li>
+<li>It MUST attempt to solve the PoW task at the difficulty specified by the Mining Server.</li>
+<li>It MUST submit completed shares to the connected Mining Server.</li>
+</ul>
+<a class="header" href="#rfc-0140syncandseeding" id="rfc-0140syncandseeding"><h1>RFC-0140/SyncAndSeeding</h1></a>
+<a class="header" href="#syncing-strategies-and-objectives" id="syncing-strategies-and-objectives"><h2>Syncing strategies and objectives</h2></a>
+<p><img src="theme/images/status-draft.svg" alt="status: draft" /></p>
+<p><strong>Maintainer(s)</strong>: <a href="https://github.com/SWvheerden">SW van heerden</a></p>
+<a class="header" href="#license-5" id="license-5"><h1>License</h1></a>
+<p><a href="https://opensource.org/licenses/BSD-3-Clause"> The 3-Clause BSD License</a>.</p>
+<p>Copyright 2018 The Tari Development Community</p>
+<p>Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+following conditions are met:</p>
+<ol>
+<li>Redistributions of this document must retain the above copyright notice, this list of conditions and the following
+disclaimer.</li>
+<li>Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
+disclaimer in the documentation and/or other materials provided with the distribution.</li>
+<li>Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products
+derived from this software without specific prior written permission.</li>
+</ol>
+<p>THIS DOCUMENT IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES,
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
+<a class="header" href="#language-5" id="language-5"><h2>Language</h2></a>
+<p>The key words &quot;MUST&quot;, &quot;MUST NOT&quot;, &quot;REQUIRED&quot;, &quot;SHALL&quot;, &quot;SHALL NOT&quot;, &quot;SHOULD&quot;, &quot;SHOULD NOT&quot;, &quot;RECOMMENDED&quot;,
+&quot;NOT RECOMMENDED&quot;, &quot;MAY&quot;, and &quot;OPTIONAL&quot; in this document are to be interpreted as described in
+<a href="https://tools.ietf.org/html/bcp14">BCP 14</a> (covering RFC2119 and RFC8174) when, and only when, they appear in all capitals, as
+shown here.</p>
+<a class="header" href="#disclaimer-5" id="disclaimer-5"><h2>Disclaimer</h2></a>
+<p>The purpose of this document and its content is for information purposes only and may be subject to change or update
+without notice.</p>
+<p>This document may include preliminary concepts that may or may not be in the process of being developed by the Tari
+community. The release of this document is intended solely for review and discussion by the community regarding the
+technological merits of the potential system outlined herein.</p>
+<a class="header" href="#goals-5" id="goals-5"><h2>Goals</h2></a>
+<p>This document describes the process of Syncing, seeding, pruning and cut-through.</p>
+<a class="header" href="#related-rfcs-5" id="related-rfcs-5"><h2>Related RFCs</h2></a>
+<ul>
+<li><a href="RFC-0110_BaseNodes.html">RFC-0110: Base Nodes</a></li>
+</ul>
+<a class="header" href="#descriptions" id="descriptions"><h2>Descriptions</h2></a>
+<a class="header" href="#syncing" id="syncing"><h3>Syncing</h3></a>
+<p>When a new node comes online, loses connection or encounters a chain re-organisation that is longer than it can tolerate, it must enter syncing mode. This will allow it to recover its state to the newest up to date state. Syncing can be divided into 2 <a href="Glossary.html#synchronisationstrategy">SynchronisationStrategy</a>s, complete sync and sync. Complete sync will mean that the node communicates with an archive node to get the complete history of every single block from genesis block. Sync will involve the node getting every block from its <a href="pruninghorizon">pruning horizon</a> to [current head](current head), as well as every block header from genesis block.</p>
+<a class="header" href="#complete-sync" id="complete-sync"><h4>Complete Sync</h4></a>
+<p>Complete sync is only available from archive nodes, as these will be the only nodes that will be able to supply the complete history required to sync every block with every transaction from genesis block up onto <a href="currenthead">current head</a>.</p>
+<a class="header" href="#syncing-process" id="syncing-process"><h4>Syncing process</h4></a>
+<p>The syncing process MUST be done in the following steps:</p>
+<ol>
+<li>Set <a href="Glossary.html#synchronisationstate">SynchronisationState</a> to <code>Synchronising</code>.</li>
+<li>Asks peers for their latest block, so it can get the total proof of work.</li>
+<li>Choose the longest chain based on total PoW done on that chain.</li>
+<li>Selects a connected peer with the longest chain to sync from, this is based on the following criteria:
+<ol>
+<li>Does the peer have a high enough <a href="pruninghorizon">pruning horizon</a>.</li>
+<li>Does the peer allow syncing.</li>
+<li>Does the peer have a low latency.</li>
+</ol>
+</li>
+<li>Download all headers from genesis block up onto <a href="currenthead">current head</a>, and validate the headers as you receive them.</li>
+<li>Download <a href="utxo">UTXO</a> set at <a href="pruninghorizon">pruning horizon</a>.</li>
+<li>Download all blocks from  <a href="pruninghorizon">pruning horizon</a> up to <a href="currenthead">current head</a>, if the node is doing a complete sync, the <a href="pruninghorizon">pruning horizon</a> will just be infinite, which means you will download all blocks ever created.</li>
+<li>Validate blocks as if they where just mined and then received, in chronological order.</li>
+</ol>
+<p>After this process the node will be in sync and able to process blocks and transaction normally.</p>
+<a class="header" href="#keeping-in-sync" id="keeping-in-sync"><h4>Keeping in sync</h4></a>
+<p>The node SHOULD periodically test its peers with ping messages to ensure that they are alive. When a node sends a ping message, it MUST include the current total PoW, hash of the <a href="currenthead">current head</a> and genesis block hash of its own current longest chain in the ping message. The receiving node MUST reply with a pong message also including the total PoW, <a href="currenthead">current head</a> and genesis block hash of its longest chain. If the two chains don't match up, the node with the lowest PoW has the responsibility to ask the peer for syncing information and set <a href="Glossary.html#synchronisationstate">SynchronisationState</a> to <code>Synchronising</code>.</p>
+<p>If the genesis block hashes don't match, the node is removed from its peer list as this node is running a different blockchain.</p>
+<p>This will be handled by the node asking for each block header from the <a href="currenthead">current head</a> going backward for older blocks until a known block is found. If a known block is found, and it has missing blocks it MUST set <a href="Glossary.html#synchronisationstate">SynchronisationState</a> to <code>Synchronising</code> while it is busy catching up those blocks.</p>
+<p>If no block is found, the node will enter sync mode and resync. It cannot recover from its state as the fork is older than its <a href="pruninghorizon">pruning horizon</a>.</p>
+<a class="header" href="#chain-forks" id="chain-forks"><h4>Chain forks</h4></a>
+<p>Chain forks can be a problem since in Mimblewimble not all nodes keep the complete transaction history, the design philosophy is more along the lines of only keeping the current <a href="blockchainstate">Blockchain state</a>. However, if such a node only maintains only the current <a href="blockchainstate">Blockchain state</a> it is not possible for the node to &quot;rewind&quot; its state to handle forks in the chain history. In this case, a mode must re-sync its chain to recover the necessary transaction history up onto its <a href="pruninghorizon">pruning horizon</a>.</p>
+<p>To counter this problem we use  <a href="pruninghorizon">pruning horizon</a>, this allows every [node](base node) to be a &quot;light&quot; <a href="archivenode">archival node</a>. This in effect means that the node will keep a full history for a short while. If the node encounters a fork it can easily rewind its state to apply the fork. If the fork is longer than the <a href="pruninghorizon">pruning horizon</a>, the node will enter a sync state where it will resync.</p>
+<a class="header" href="#pruning-and-cut-through" id="pruning-and-cut-through"><h3>Pruning and cut-through</h3></a>
+<p>[Pruning and cut-through]: #Pruning-and-cut-through &quot;Remove already spent outputs from the <a href="Glossary.html#unspent-transaction-outputs">utxo</a>&quot;</p>
+<p>In Mimblewimble, the state can be completely verified using the current <a href="utxo">UTXO</a> set (which contains the output commitments and range proofs), the set of excess signatures (contained in the transaction kernels) and the proof-of-work. The full block and transaction history is not required. This allows base layer nodes to remove old used inputs from the <a href="Glossary.html#blockchain">blockchain</a> and or the <a href="Glossary.html#mempool">mempool</a>. <a href="cut-through">Cut-through</a> happens in the <a href="Glossary.html#mempool">mempool</a> while pruning happens in the <a href="Glossary.html#blockchain">blockchain</a> with already confirmed transactions. This will remove the spent inputs and outputs, but will retain the excesses of each <a href="Glossary.html#transaction">transaction</a>.</p>
+<p>Pruning is only for the benefit of the local base node as it reduces the local blockchain size. Pruning only happens after the block is older than the <a href="pruninghorizon">pruning horizon</a> height. A Base node will either run in archive mode or prune mode, if the base node is running in archive mode it MUST NOT prune.</p>
+<p>When running in pruning mode, <a href="Glossary.html#base-node">base node</a>s have the following responsibilities:</p>
+<ol>
+<li>MUST remove all spent outputs that is older than the <a href="pruninghorizon">pruning horizon</a> in it's current stored <a href="utxo">UTXO</a> when a new block is received from another <a href="Glossary.html#base-node">base node</a>.</li>
+</ol>
+<a class="header" href="#rfc-0150wallets" id="rfc-0150wallets"><h1>RFC-0150/Wallets</h1></a>
+<a class="header" href="#base-layer-wallet-module" id="base-layer-wallet-module"><h2>Base layer wallet module</h2></a>
+<p><img src="https://github.com/tari-project/tari/raw/master/RFC/src/theme/images/status-draft.svg" alt="status: draft" /></p>
+<p><strong>Maintainer(s)</strong>: <a href="https://github.com/neonknight64">Yuko Roodt</a>, <a href="https://github.com/CjS77">Cayle Sharrock</a></p>
+<a class="header" href="#license-6" id="license-6"><h1>License</h1></a>
+<p><a href="https://opensource.org/licenses/BSD-3-Clause"> The 3-Clause BSD License</a>.</p>
+<p>Copyright 2019 The Tari Development Community</p>
+<p>Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+following conditions are met:</p>
+<ol>
+<li>Redistributions of this document must retain the above copyright notice, this list of conditions and the following
+disclaimer.</li>
+<li>Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
+disclaimer in the documentation and/or other materials provided with the distribution.</li>
+<li>Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products
+derived from this software without specific prior written permission.</li>
+</ol>
+<p>THIS DOCUMENT IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES,
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
+<a class="header" href="#language-6" id="language-6"><h2>Language</h2></a>
+<p>The key words &quot;MUST&quot;, &quot;MUST NOT&quot;, &quot;REQUIRED&quot;, &quot;SHALL&quot;, &quot;SHALL NOT&quot;, &quot;SHOULD&quot;, &quot;SHOULD NOT&quot;, &quot;RECOMMENDED&quot;,
+&quot;NOT RECOMMENDED&quot;, &quot;MAY&quot;, and &quot;OPTIONAL&quot; in this document are to be interpreted as described in
+<a href="https://tools.ietf.org/html/bcp14">BCP 14</a> (covering RFC2119 and RFC8174) when, and only when, they appear in all capitals, as
+shown here.</p>
+<a class="header" href="#disclaimer-6" id="disclaimer-6"><h2>Disclaimer</h2></a>
+<p>The purpose of this document and its content is for information purposes only and may be subject to change or update
+without notice.</p>
+<p>This document may include preliminary concepts that may or may not be in the process of being developed by the Tari
+community. The release of this document is intended solely for review and discussion by the community regarding the
+technological merits of the potential system outlined herein.</p>
+<a class="header" href="#goals-6" id="goals-6"><h2>Goals</h2></a>
+<p>This document will propose the functionality and techniques required by the <a href="Glossary.html#base-layer">Base Layer</a> Tari <a href="Glossary.html#wallet">wallet</a> module. The module
+exposes the core wallet functionality that user-facing wallet applications may be built on.</p>
+<a class="header" href="#related-rfcs-6" id="related-rfcs-6"><h2>Related RFCs</h2></a>
+<ul>
+<li><a href="https://github.com/tari-project/tari/blob/master/RFC/src/RFC-0100_BaseLayer.md">RFC-0100: Base layer</a></li>
+</ul>
+<p>This RFC is derived from a proposal first made in <a href="https://github.com/tari-project/tari/issues/17">this issue</a>.</p>
+<a class="header" href="#description-5" id="description-5"><h2>Description</h2></a>
+<a class="header" href="#key-responsibilities" id="key-responsibilities"><h3>Key responsibilities</h3></a>
+<p>The wallet software is responsible for constructing and negotiating <a href="Glossary.html#transaction">transaction</a>s for transferring and receiving <a href="Glossary.html#tari-coin">Tari coin</a>s on the Base Layer. It should also provide functionality to generate, store and recover a master seed key and derived cryptographic key pairs that can be used for Base Layer addresses and signing of transactions.</p>
+<a class="header" href="#details-of-functionality" id="details-of-functionality"><h3>Details of functionality</h3></a>
+<p>A detailed description of the required functionality of the Tari software wallet is provided in three parts:</p>
+<ul>
+<li>Basic transaction functionality,</li>
+<li>Key management features and</li>
+<li>the different wallet recovery methods.</li>
+</ul>
+<a class="header" href="#basic-transaction-functionality" id="basic-transaction-functionality"><h4>Basic transaction functionality</h4></a>
+<ul>
+<li>It MUST be able to send and receive Tari coins using <a href="Glossary.html#mimblewimble">Mimblewimble</a> transactions.</li>
+<li>It SHOULD be able to establish a connection between different user wallets to negotiate:
+<ul>
+<li>the construction of a transaction and</li>
+<li>the signing of multi signature transactions.</li>
+</ul>
+</li>
+<li>The Tari software wallet SHOULD be implemented as a library or API so that GUI or CLI applications can be developed on top of it.</li>
+<li>It MUST be able to establish a connection to a <a href="Glossary.html#base-node">Base Node</a> to submit transactions and monitor the Tari <a href="Glossary.html#blockchain">blockchain</a>.</li>
+<li>It SHOULD maintain an internal ledger to keep track of the Tari coin balance of the wallet.</li>
+<li>It MAY offer transaction fee estimation taking into account:
+<ul>
+<li>transaction byte size,</li>
+<li>network congestion and</li>
+<li>the desired transaction priority.</li>
+</ul>
+</li>
+<li>It SHOULD be able to monitor and return the states (Spent, Unspent or Unconfirmed) of previously submitted transactions by querying information from the connected base node.</li>
+<li>The Wallet SHOULD present the total Spent, Unspent or Unconfirmed transactions in summarised form.</li>
+<li>The wallet software SHOULD be able to update its software to patch potential security vulnerabilities. Automatic updating SHOULD be selected by default, but users can decide to opt out.</li>
+<li>Wallet features requiring querying a base node for information, SHOULD have caching capabilities to reduce bandwidth consumption.</li>
+</ul>
+<a class="header" href="#key-management-features" id="key-management-features"><h4>Key management features</h4></a>
+<ul>
+<li>It MUST be able to generate a master seed key for the wallet by using one of:
+<ul>
+<li>input from a user (for example, when restoring a wallet, or in testing),</li>
+<li>a user defined set of mnemonic word sequences using known word lists,</li>
+<li>a cryptographically secure random number generator.</li>
+</ul>
+</li>
+<li>It SHOULD be able to generate derived transactional cryptographic key pairs from the master seed key using deterministic key pair generation.</li>
+<li>It SHOULD store the wallet state using a password or passphrase encrypted persistent key-value database.</li>
+<li>It SHOULD provide the ability to backup the wallet state to a single encrypted file to simplify wallet recovery and reconstruction at a later stage.</li>
+<li>It MAY provide the ability to export the master seed key or wallet state as a printable paper wallet using coded markers.</li>
+</ul>
+<a class="header" href="#different-methods-for-recovering-the-wallet-state-of-the-tari-software-wallet" id="different-methods-for-recovering-the-wallet-state-of-the-tari-software-wallet"><h4>Different methods for recovering the wallet state of the Tari software wallet:</h4></a>
+<ul>
+<li>It MUST be able to reconstruction the wallet state from a manually entered master seed key.</li>
+<li>It MUST have a mechanism to systematically search through the Tari blockchain and mempool for unspent and unconfirmed transactions using the keys derived from the master key.</li>
+<li>The master seed key SHOULD be derivable from a specific set of mnemonic word sequences using known word lists.</li>
+<li>It MAY enable the reconstruction of the master seed key by scanning a coded marker of a paper wallet.</li>
+</ul>
+<a class="header" href="#rfc-0200baselayerextensions" id="rfc-0200baselayerextensions"><h1>RFC-0200/BaseLayerExtensions</h1></a>
+<p>RFC placeholder.</p>
+<p>This document will list all the Tari-specific extensions to the Mimblewimble protocol to enable the digital assets
+network.</p>
+<a class="header" href="#rfc-0210namespaceregistration" id="rfc-0210namespaceregistration"><h1>RFC-0210/NamespaceRegistration</h1></a>
+<p>RFC placeholder.</p>
+<p>This document will describe the process for TLDI registration on the Tari base layer.</p>
+<a class="header" href="#rfc-0220assetcheckpoints" id="rfc-0220assetcheckpoints"><h1>RFC-0220/AssetCheckpoints</h1></a>
+<p>RFC placeholder.</p>
+<p>This document will describe the mechanism for Asset Checkpoints. To make up for the fact that the DAN has no
+proof-of-work and therefore has lower degrees of trustlessness and decentralisation; VN committees must provide
+checkpoints on the base layer from time to time. These checkpoints are, amongst other things, immutable commitments to
+the state of an asset at a point in time.</p>
+<a class="header" href="#rfc-0230htlc" id="rfc-0230htlc"><h1>RFC-0230/HTLC</h1></a>
+<p>RFC placeholder.</p>
+<p>This document will describe extensions to Mimblewimble enabling time-locked transactions (as opposed to time-locked
+outputs) which allow the development of time locked contracts (useful for e.g. Atomic Swap contracts)</p>
+<a class="header" href="#rfc-0322vnregistration" id="rfc-0322vnregistration"><h1>RFC-0322/VNRegistration</h1></a>
+<p>RFC placeholder.</p>
+<p>This document will describe how a Validator Node registers itself on the base layer.</p>
+<a class="header" href="#rfc-0341assetregistration" id="rfc-0341assetregistration"><h1>RFC-0341/AssetRegistration</h1></a>
+<p>RFC placeholder.</p>
+<p>This document will describe the details of the multi-party contracts that VN committees enter into to allow them to
+register new asset multiparty contracts on the base layer.</p>
+<a class="header" href="#rfc-0300dan" id="rfc-0300dan"><h1>RFC-0300/DAN</h1></a>
+<a class="header" href="#the-digital-assets-network-1" id="the-digital-assets-network-1"><h2>The Digital Assets Network</h2></a>
+<p><img src="theme/images/status-draft.svg" alt="status: draft" /></p>
+<p><strong>Maintainer(s)</strong>: <a href="https://github.com/CjS77">Cayle Sharrock</a>, <a href="https://github.com/philipr-za">Philip Robinson</a></p>
+<a class="header" href="#license-7" id="license-7"><h1>License</h1></a>
+<p><a href="https://opensource.org/licenses/BSD-3-Clause"> The 3-Clause BSD License</a>.</p>
+<p>Copyright 2018 The Tari Development Community</p>
+<p>Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+following conditions are met:</p>
+<ol>
+<li>Redistributions of this document must retain the above copyright notice, this list of conditions and the following
+disclaimer.</li>
+<li>Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
+disclaimer in the documentation and/or other materials provided with the distribution.</li>
+<li>Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products
+derived from this software without specific prior written permission.</li>
+</ol>
+<p>THIS DOCUMENT IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES,
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
+<a class="header" href="#language-7" id="language-7"><h2>Language</h2></a>
+<p>The key words &quot;MUST&quot;, &quot;MUST NOT&quot;, &quot;REQUIRED&quot;, &quot;SHALL&quot;, &quot;SHALL NOT&quot;, &quot;SHOULD&quot;, &quot;SHOULD NOT&quot;, &quot;RECOMMENDED&quot;,
+&quot;NOT RECOMMENDED&quot;, &quot;MAY&quot;, and &quot;OPTIONAL&quot; in this document are to be interpreted as described in
+<a href="https://tools.ietf.org/html/bcp14">BCP 14</a> (covering RFC2119 and RFC8174) when, and only when, they appear in all capitals, as
+shown here.</p>
+<a class="header" href="#disclaimer-7" id="disclaimer-7"><h2>Disclaimer</h2></a>
+<p>The purpose of this document and its content is for information purposes only and may be subject to change or update
+without notice.</p>
+<p>This document may include preliminary concepts that may or may not be in the process of being developed by the Tari
+community. The release of this document is intended solely for review and discussion by the community regarding the
+technological merits of the potential system outlined herein.</p>
+<a class="header" href="#goals-7" id="goals-7"><h2>Goals</h2></a>
+<p>The goal of this RFC is to describe the key features of the Tari second layer, a.k.a the Digital Assets Network (DAN)</p>
+<a class="header" href="#related-rfcs-7" id="related-rfcs-7"><h2>Related RFCs</h2></a>
+<ul>
+<li><a href="RFC-0100_BaseLayer.html">RFC-0100: Base layer</a></li>
+<li><a href="RFC-0310_AssetTemplates.html">RFC-0310: Digital assets</a></li>
+<li><a href="RFC-3011_SecondLayerConsensus.html">RFC-0311: Second layer consensus strategies</a></li>
+<li><a href="RFC-3012_ValidatorNodes.html">RFC-0312: Validator nodes</a></li>
+</ul>
+<a class="header" href="#description-6" id="description-6"><h2>Description</h2></a>
+<a class="header" href="#abstract-2" id="abstract-2"><h3>Abstract</h3></a>
+<p><a href="Glossary.html#digital-asset">Digital asset</a>s (DAs) are managed by committees of special nodes called <a href="Glossary.html#validator-node">Validator node</a>s (VNs). VNs manage digital asset state change and ensure
+that the rules of the asset contracts are enforced.</p>
+<ul>
+<li>VNs form a peer-to-peer communication network that together defines the Tari <a href="Glossary.html#digital-asset-network">Digital Asset Network</a> (DAN)</li>
+<li>VNs register themselves on the base layer and commit collateral to prevent Sybil attacks.</li>
+<li>Scalability is achieved by sacrificing decentralisation. Not <em>all</em> VNs manage <em>every</em> asset. Assets are managed by
+subsets of the DAN, called VN committees. These committees reach consensus on DA state amongst themselves.</li>
+<li>VNs earn fees for their efforts.</li>
+<li>Digital asset contracts are not Turing complete, but are instantiated by <a href="Glossary.html#asset-issuer">Asset Issuer</a>s (AIs) using Digital Asset templates that are defined
+in the DAN protocol code.</li>
+</ul>
+<a class="header" href="#digital-assets" id="digital-assets"><h3>Digital Assets</h3></a>
+<ul>
+<li>Digital asset contracts are <em>not</em> Turing complete, but are selected from a set of <a href="Glossary.html#digitalassettemplate">DigitalAssetTemplate</a>s that govern
+the behaviour of each contract type. e.g. there could be a Single-Use Token template for simple ticketing systems; a
+Coupon template for loyalty programmes and so on.</li>
+<li>The template system is intended to be highly flexible and additional templates can be added to the protocol periodically.</li>
+<li>Asset issuers can register Top-Level Digital Issuer (TLDI) names on the base chain to help disambiguate similar
+contracts and improve the signal-to-noise ratio from scam- or copy-cat contracts.</li>
+</ul>
+<p>An <a href="Glossary.html#asset-issuer">Asset Issuer</a> (AI) will issue a Digital Assets by constructing a contract from one of the supported set of <a href="Glossary.html#digitalassettemplate">DigitalAssetTemplate</a>s. The AI will choose
+how large the committee of Validator Nodes will be for this DA and have the option to nominate <a href="Glossary.html#trusted-node">Trusted Node</a>s to be part of the VN committee for the DA.
+Any remaining spots on the committee will be filled by permissionless VNs that are selected according to a <a href="Glossary.html#committeeselectionstrategy">CommitteeSelectionStrategy</a>. This is a strategy
+for the DAN to algorithmically select candidates for the committee from the available registered Validator Nodes. The VNs will need to accept the nomination
+to become part of the committee by putting up the specified collateral.</p>
+<a class="header" href="#validator-nodes" id="validator-nodes"><h3>Validator Nodes</h3></a>
+<p><a href="Glossary.html#validator-node">Validator Node</a>s form the basis of the second layer DAN. All actions on this network take place by interacting with VN's. Some examples of actions
+that VNs will facilitate are:</p>
+<ul>
+<li>Issuing a <a href="Glossary.html#digital-asset">Digital Asset</a>,</li>
+<li>querying the state of <a href="Glossary.html#digital-asset">Digital Asset</a> and its constituent <a href="Glossary.html#digital-asset-tokens">tokens</a>,</li>
+<li>issuing an instruction to change the state of a <a href="Glossary.html#digital-asset">Digital Asset</a> or <a href="Glossary.html#digital-asset-tokens">tokens</a>.</li>
+</ul>
+<p>VNs will also perform archival functions for the assets they manage. The lifetime of these archives and the fee structure for this function is
+still being discussed.</p>
+<a class="header" href="#registration" id="registration"><h4>Registration</h4></a>
+<p>VNs register themselves on the <a href="Glossary.html#base-layer">Base Layer</a> using a special <a href="Glossary.html#transaction">transaction</a> type. The registration <a href="Glossary.html#transaction">transaction</a> type
+requires the spending of a certain minimum amount of <a href="Glossary.html#tari-coin">Tari coin</a>, the (<a href="Glossary.html#registrationcollateral">RegistrationCollateral</a>), that has a time-lock on the
+output for a minimum amount of time (<a href="Glossary.html#registrationterm">RegistrationTerm</a>) as well as some metadata, such as the VNs public key and a generated Node ID. The Node ID is generated
+during registration to prevent mining of VN public keys that can be used to manipulate routing on the DAN. The blinding factor for the Registration transaction is the private key
+that the VN node will use to sign every instruction that it executes for the duration of its <a href="Glossary.html#registrationterm">RegistrationTerm</a>.</p>
+<p>Once a VNs <a href="Glossary.html#registrationterm">RegistrationTerm</a> has expired so will this specific VN registration. The UTXO timelock will have elapsed so the <a href="Glossary.html#registrationcollateral">RegistrationCollateral</a> can be reclaimed and a new VN registration
+need to be performed. This automatic registration expiry will ensure that the VN registry stays up to date with active VN registrations and inactive registrations will naturally be removed.</p>
+<p>Requiring nodes to register themselves serves two purposes:</p>
+<ul>
+<li>Makes VN Sybil attacks expensive,</li>
+<li>Provides an authoritative &quot;central-but-not-centralised&quot; registry of validator nodes from the base layer.</li>
+</ul>
+<a class="header" href="#execution-of-instructions" id="execution-of-instructions"><h4>Execution of instructions</h4></a>
+<p>VNs are expected to manage the state of digital assets on behalf of digital asset issuers. They receive fees as reward
+for doing this.</p>
+<ul>
+<li>Digital assets consist of an initial state plus a set of state transition rules. These rules are set by the Tari
+protocol, but will usually provide parameters that must be specified by the <a href="Glossary.html#asset-issuer">Asset Issuer</a>.</li>
+<li>The set of VNs that participate in managing state of a specific DA is called a <a href="Glossary.html#committee">Committee</a>. A committee is selected during the asset
+issuance process and membership of the committee can be updated at <a href="Glossary.html#checkpoint">Checkpoint</a>s.</li>
+<li>It is the VNs responsibility to ensure that every state change in a digital asset conforms to the contract's rules.</li>
+<li>VNs accept digital asset <a href="Glossary.html#instructions">Instructions</a> from clients and peers. <a href="Glossary.html#instructions">Instructions</a> allow for creating, updating, expiring and archiving digital assets on the DAN.</li>
+<li>VNs provide additional collateral when accepting an offer to manage an asset, which is stored in a multi-signature
+UTXO on the base layer. This collateral can be taken from the VN if it is proven that the VN engaged in
+malicious behaviour.</li>
+<li>VNs participate in fraud proof validations in the event of consensus disputes (which could result in the malicious VN's
+collateral being slashed).</li>
+<li>Digital asset metadata (e.g. large images) are managed by VNs. The large data itself will not be stored on the VNs but an external location and a hash of the data can be stored. Whether the data is considered part of the state
+(and thus checkpointed) or out of state depends on the type of digital asset contract employed.</li>
+</ul>
+<a class="header" href="#fees" id="fees"><h4>Fees</h4></a>
+<p>Fees will be paid to VNs based on the amount of work they did during a checkpoint period. The fees will be paid from a fee pool which will be collected
+and reside in a UTXO that is accessible by the committee. The exact mechanism for the the payment of the fees by the committee and who pays the various
+types of fees is still under discussion.</p>
+<a class="header" href="#checkpoints" id="checkpoints"><h4>Checkpoints</h4></a>
+<p>VNs periodically post checkpoint summaries to the <a href="Glossary.html#base-layer">base layer</a> for each asset that they are managing. The checkpoints will form an immutable
+record of the <a href="Glossary.html#digital-asset">Digital Asset</a> state on the base-layer. There will be two types of checkpoints:</p>
+<ul>
+<li>
+<p>An Opening checkpoint (OC) will:</p>
+<ul>
+<li>Specify the members of the VN committee.</li>
+<li>Lock up the collateral for the committee members for this checkpoint period.</li>
+<li>Collect the fee pool for this checkpoint period from the Asset Issuer into a Multi-Sig UTXO under the control of the committee.
+This can be a top-up of the fees or a whole new fee pool.</li>
+</ul>
+</li>
+<li>
+<p>A Closing checkpoint (CC) will:</p>
+<ul>
+<li>Summarize the Digital Asset state on the base layer.</li>
+<li>Release the fee pay outs.</li>
+<li>Release the collateral for the committee members for this checkpoint period.</li>
+<li>Allow for committee members to resign from the committee</li>
+</ul>
+</li>
+</ul>
+<p>After an DA is issued there will immediately be an Opening checkpoint. After a checkpoint period there will then be a Closing checkpoint followed
+immediately by an Opening checkpoint for the next period, we will call this set of checkpoints an Intermediate checkpoint, which could be a compressed combination of an opening and closing checkpoint. This will continue
+until the end of the asset's lifetime where there will be a final Closing checkpoint that will be followed by the retirement of the asset.</p>
+<div class="mermaid">
+graph LR;
+    subgraph Asset Issuance
+    IssueAsset-->OC1;
+    end
+    OC1-->CC1;
+    subgraph Intermediate Checkpoint
+    CC1-->OC2;
+    end
+    OC2-->CC2;
+    subgraph Intermediate Checkpoint
+    CC2-->OC3;
+    end
+    OC3-->CC3;
+    subgraph Asset Retirement
+    CC3-->RetireAsset;
+    end
+</div>
+<a class="header" href="#consensus" id="consensus"><h4>Consensus</h4></a>
+<p>Committees of VNs will use a <a href="Glossary.html#consensusstrategy">ConsensusStrategy</a> to manage the process of</p>
+<ul>
+<li>Propogating signed instructions between members of the committee.</li>
+<li>Determining when the threshold has been reached for an instruction to be considered valid.</li>
+</ul>
+<p>Part of the <a href="Glossary.html#consensusstrategy">ConsensusStrategy</a> will be mechanisms for detecting actions by <a href="Glossary.html#bad-actor">Bad Actor</a>s. The nature of the enforcement actions that can be taken
+against bad actors are still to be decided.</p>
+<a class="header" href="#network-communication" id="network-communication"><h3>Network communication</h3></a>
+<p>The VNs will communicate using a peer-to-peer (P2P) network. To facilitate this this VNs must perform the following functions:</p>
+<ul>
+<li>VNs MUST maintain a list of peers, and which assets each peer is managing.</li>
+<li>VNs MUST relay <a href="Glossary.html#instructions">instructions</a> to members of the committee that are managing the relevant asset.</li>
+<li>VNs MUST respond to requests for information about digital assets that they manage on the DAN.</li>
+<li>VNs and clients can advertise public keys to facilitate P2P communication encryption</li>
+</ul>
+<a class="header" href="#rfc-0320validatornodes" id="rfc-0320validatornodes"><h1>RFC-0320/ValidatorNodes</h1></a>
+<p>RFC placeholder.</p>
+<p>This document will provide a high-level overview of Validator Nodes' responsibilities on the DAN</p>
+<a class="header" href="#rfc-0321vnassetdiscovery" id="rfc-0321vnassetdiscovery"><h1>RFC-0321/VNAssetDiscovery</h1></a>
+<p>RFC placeholder.</p>
+<p>This document will describe how clients can discover which assets are being managed on the network and the basic ways of
+interacting with them.</p>
+<a class="header" href="#rfc-0322vnregistration-1" id="rfc-0322vnregistration-1"><h1>RFC-0322/VNRegistration</h1></a>
+<p>RFC placeholder.</p>
+<p>This document will describe how a Validator Node registers itself on the base layer.</p>
+<a class="header" href="#rfc-0323vncommittees" id="rfc-0323vncommittees"><h1>RFC-0323/VNCommittees</h1></a>
+<p>RFC placeholder.</p>
+<p>This document will describe the process of how validator committees are formed. In particular, the process of allowing
+the network to elect a set of nodes via algorithm is described.</p>
+<a class="header" href="#rfc-0325assetreadapi" id="rfc-0325assetreadapi"><h1>RFC-0325/AssetReadAPI</h1></a>
+<p>RFC placeholder.</p>
+<p>This document will describe the read-only API for gaining basic information about public digital assets; and how
+information about hidden/private assets is provided.</p>
+<a class="header" href="#rfc-0340vnconsensusoverview" id="rfc-0340vnconsensusoverview"><h1>RFC-0340/VNConsensusOverview</h1></a>
+<p>RFC placeholder.</p>
+<p>This document will describe the high-level overview of how VN committees reach consensus about the current state of an
+asset after each instruction is executed.</p>
+<a class="header" href="#rfc-0341assetregistration-1" id="rfc-0341assetregistration-1"><h1>RFC-0341/AssetRegistration</h1></a>
+<p>RFC placeholder.</p>
+<p>This document will describe the details of the multi-party contracts that VN committees enter into to allow them to
+register new asset multiparty contracts on the base layer.</p>
+<a class="header" href="#rfc-0342vninstructions" id="rfc-0342vninstructions"><h1>RFC-0342/VNInstructions</h1></a>
+<p>RFC placeholder.</p>
+<p>This document will describe the types of asset instructions that may be issued by Tari Collections.</p>
+<a class="header" href="#rfc-0343vnconsensusalgorithm" id="rfc-0343vnconsensusalgorithm"><h1>RFC-0343/VNConsensusAlgorithm</h1></a>
+<p>RFC placeholder.</p>
+<p>This document will describe the details of the DAN VN consensus algorithm.</p>
+<a class="header" href="#rfc-0344vnassettransfer" id="rfc-0344vnassettransfer"><h1>RFC-0344/VNAssetTransfer</h1></a>
+<p>RFC placeholder.</p>
+<p>This document will describe the process for third-party asset transfer; i.e. Collections &lt;-&gt; Collections transfer</p>
+<a class="header" href="#rfc-0345vnassetretirement" id="rfc-0345vnassetretirement"><h1>RFC-0345/VNAssetRetirement</h1></a>
+<p>RFC placeholder.</p>
+<p>This document will describe the process for asset retirement / expiry, and how attestations of final state can be made
+long after the Validator Node committee has purged all record of the asset.</p>
+<a class="header" href="#rfc-0350disputeresolution" id="rfc-0350disputeresolution"><h1>RFC-0350/DisputeResolution</h1></a>
+<p>RFC placeholder.</p>
+<p>This document will describe the dispute resolution process, which can occur if a party feels that a VN committee has
+broken network rules while executing an instructions.</p>
+<a class="header" href="#rfc-0370taricollections" id="rfc-0370taricollections"><h1>RFC-0370/TariCollections</h1></a>
+<p>RFC placeholder.</p>
+<p>This document will describe the Tari Collections app. Tari Collections manages all Tari digital assets on behalf of the
+user and includes</p>
+<ul>
+<li>A Tari coin wallet</li>
+<li>A Tari asset token wallet</li>
+<li>The instruction API</li>
+<li>Peer-to-peer communication capabilities</li>
+<li>Asset creation and management features</li>
+<li>Coin &lt;-&gt; Asset bridging capabilities</li>
+</ul>
+<a class="header" href="#rfc-0371tokenwallet" id="rfc-0371tokenwallet"><h1>RFC-0371/TokenWallet</h1></a>
+<p>RFC placeholder.</p>
+<p>This document will describe how asset key management and storage is applied by Tari Collections.</p>
+<a class="header" href="#rfc-0372tcp2pcomm" id="rfc-0372tcp2pcomm"><h1>RFC-0372/TCP2PComm</h1></a>
+<p>RFC placeholder.</p>
+<p>This document will describe how AMs commincate with each other, VNs, and the Tari base layer.</p>
+<a class="header" href="#rfc-0373tcinstructionapi" id="rfc-0373tcinstructionapi"><h1>RFC-0373/TCInstructionAPI</h1></a>
+<p>RFC placeholder.</p>
+<p>This document will describe the Tari instruction API; the API Tari Collections uses to construct and deliver instructions to the VN
+network.</p>
+<a class="header" href="#rfc-0374tcassetmanagement" id="rfc-0374tcassetmanagement"><h1>RFC-0374/TCAssetManagement</h1></a>
+<p>RFC placeholder.</p>
+<p>This document will describe the process of creating and submitting an <code>AssetCreation</code> instruction to the DAN, and
+tracking the state from an asset issuer's perspective</p>
+<a class="header" href="#rfc-0375tcwalletbridge" id="rfc-0375tcwalletbridge"><h1>RFC-0375/TCWalletBridge</h1></a>
+<p>RFC placeholder.</p>
+<p>Since all instructions carry a small fee which is paid to the VN committee managing the asset, this document will
+describe how Tari Collections synchronises Tari coin payments when submitting instructions.</p>
+<a class="header" href="#rfc-0500paymentchannels" id="rfc-0500paymentchannels"><h1>RFC-0500/PaymentChannels</h1></a>
+<p>RFC placeholder.</p>
+<p>This document will describe how Tari implements payment channels. The base layer is slow. The DAN is fast. However,
+every non-read DAN instruction has a fee (i.e. base layer transaction) associated with it. To bridge the speed gap
+between the two layers, a payment channel solution is required. This document provides the high-level overview of how
+this is done.</p>
+<a class="header" href="#rfc-0530_p2ppayments" id="rfc-0530_p2ppayments"><h1>RFC-0530_P2PPayments</h1></a>
+<p>RFC placeholder.</p>
+<p>This document will describe how peer-to-peer (micro)payments can be achieved using the Tari payment channel mechanism.</p>
+<a class="header" href="#rfc-0550vnfees" id="rfc-0550vnfees"><h1>RFC-0550/VNFees</h1></a>
+<p>RFC placeholder.</p>
+<p>This document will describe the high level economics and incentives for setting instruction fees when submitting
+instructions on the DAN.</p>
+<a class="header" href="#tari-network-terminology" id="tari-network-terminology"><h1>Tari Network Terminology</h1></a>
+<p>Below are a list of terms and their definitions that are used throughout the Tari code and documentation. Let's use this
+glossary to disambiguate ideas, and work towards a
+<a href="https://blog.carbonfive.com/2016/10/04/ubiquitous-language-the-joy-of-naming/">ubiquitous language</a> for this project.</p>
+<a class="header" href="#asset-issuer" id="asset-issuer"><h2>Asset Issuer</h2></a>
+<p>An entity that creates digital assets on the Tari DAN. The Asset Issuer will specify the parameters of the contract template
+that defines the rules that govern the asset and the number and nature of its constituent tokens on issuance. The Asset Issuer
+will, generally, be the initial owner of the tokens.</p>
+<a class="header" href="#bad-actor" id="bad-actor"><h2>Bad Actor</h2></a>
+<p>A participant that acts maliciously or negligently to the detriment of the network or another participant.</p>
+<a class="header" href="#base-layer" id="base-layer"><h2>Base layer</h2></a>
+<p>The Tari Base layer is a merge-mined <a href="#blockchain" title="The linked sequence of Tari blocks on the Tari base layer">blockchain</a> secured by proof-of-work. The base layer is primarily responsible for
+the emission of new Tari, for securing and managing <a href="#tari-coin" title="The base layer token">Tari coin</a> transfers.</p>
+<a class="header" href="#base-node" id="base-node"><h2>Base Node</h2></a>
+<p>A full Tari node running on the base layer. It's primary role is validating and propagating <a href="#tari-coin" title="The base layer token">Tari coin</a> transactions
+and blocks to the rest of the network.</p>
+<a class="header" href="#block" id="block"><h2>Block</h2></a>
+<p>A collection transactions and associated metadata recorded as a single entity in the Tari blockchain. The ordering of
+Tari transactions is set purely by the block height of the block they are recorded in.</p>
+<a class="header" href="#block-reward" id="block-reward"><h2>Block reward</h2></a>
+<p>The amount of Tari created by the coinbase transaction in every block. The block reward is set by the
+<a href="#emission-schedule">emission schedule</a>.</p>
+<a class="header" href="#blockchain" id="blockchain"><h2>Blockchain</h2></a>
+<p>A sequence of tari <a href="#block" title="A collection transactions and associated metadata recorded as a single entity in the Tari blockchain">block</a>s. Each block contains a hash of the previous valid block. Thus the blocks form a chain
+with the property that changing anything in a block other than the head block requires rewriting the entire
+blockchain from that point on.</p>
+<a class="header" href="#current-head" id="current-head"><h2>Current head</h2></a>
+<p>[currenthead]: #currenthead &quot;The last valid block of the longest chain&quot;</p>
+<p>The last <a href="#block" title="A collection transactions and associated metadata recorded as a single entity in the Tari blockchain">block</a> of the base layer that represents the latest valid block. This <a href="#block" title="A collection transactions and associated metadata recorded as a single entity in the Tari blockchain">block</a> must be from the longest proof of work chain to be the current head.</p>
+<a class="header" href="#checkpoint" id="checkpoint"><h2>Checkpoint</h2></a>
+<p>A hash of the state of a Digital Asset that is recorded on the base layer.</p>
+<a class="header" href="#broadcaststrategy" id="broadcaststrategy"><h2>BroadcastStrategy</h2></a>
+<p>A strategy for propagating messages amongst nodes in a peer-to-peer network. Example implementations of
+<code>BroadcastStrategy</code> include the Gossip protocol, Dandelion and flood fill.</p>
+<a class="header" href="#coinbase-transaction" id="coinbase-transaction"><h2>Coinbase transaction</h2></a>
+<p>The first transaction in every Tari block yields a <a href="#block-reward" title="The amount of Tari created in every block">Block Reward</a> according to the Tari <a href="#emission-schedule">emission Schedule</a> and is
+awarded to the miner that performed the Proof of Work for the block.</p>
+<a class="header" href="#committee" id="committee"><h2>Committee</h2></a>
+<p>A group of <a href="#validator-node" title="A second-layer node that manages and validates digital asset state transitions">Validator Node</a>s that are responsible for managing the state of a specific <a href="#digital-asset" title="Sets of Native digital tokens, both fungible and non-fungible that are created by 
+asset issuers on the Tari 2nd layer">Digital Asset</a>. A committee is selected
+during asset issuance and can be updated at <a href="#checkpoint" title="A summary of the state of a Digital Asset that is recorded on the base layer">Checkpoint</a>s.</p>
+<a class="header" href="#committeeselectionstrategy" id="committeeselectionstrategy"><h2>CommitteeSelectionStrategy</h2></a>
+<p>A strategy for the DAN to algorithmically select candidates for the committee from the available registered Validator Nodes. The VNs will need accept the nomination to become part of the committee.</p>
+<a class="header" href="#consensusstrategy" id="consensusstrategy"><h2>ConsensusStrategy</h2></a>
+<p>The approach that will be taken for a committee to reach consensus on the validity of instructions that are performed on a
+given Digital Asset.</p>
+<a class="header" href="#commitment" id="commitment"><h2>Commitment</h2></a>
+<p>A commitment is a cryptographic primitive that allows one to commit to a chosen value while keeping it hidden from
+others, with the ability to reveal the committed value later. Commitments are designed so that one cannot change the
+value or statement after they have committed to it.</p>
+<a class="header" href="#digital-asset" id="digital-asset"><h2>Digital asset</h2></a>
+<p>Digital assets (DAs) are the sets or collections of native digital tokens (both fungible and non-fungible) that are
+created by <a href="#asset-issuer" title="An entity that creates digital assets on the Tari DAN">asset issuer</a>s on the Tari 2nd layer. For example, a promoter might create a DA for a music concert event. The
+event is the digital asset, and the tickets for the event are digital asset <a href="#digital-asset-tokens" title="or just, &quot;tokens&quot;. The tokens associated with a given digital asset. Tokens are created
+ by asset issuers">tokens</a>.</p>
+<a class="header" href="#digital-asset-network" id="digital-asset-network"><h2>Digital Asset Network</h2></a>
+<p>The Tari second layer. All digital asset interactions are managed on the Tari Digital Assets Network (DAN). These
+interactions (defined in <a href="#instructions" title="Second-layer network commands for managing digital asset state">instruction</a>s) are processed and validated by <a href="#validator-node" title="A second-layer node that manages and validates digital asset state transitions">Validator Node</a>s.</p>
+<a class="header" href="#digitalassettemplate" id="digitalassettemplate"><h2>DigitalAssetTemplate</h2></a>
+<p>A DigitalAssetTemplate is one of a set of contract types supported by the DAN. These contracts are non-turing complete and consist of
+rigid rule-sets with parameters that can be set by Asset Issuers.</p>
+<a class="header" href="#digital-asset-tokens" id="digital-asset-tokens"><h2>Digital asset tokens</h2></a>
+<p>Digital asset tokens (or often, just &quot;tokens&quot;) are the finite set of digital entities associated with a given digital
+asset. Depending on the DA created, tokens can represent tickets, in-game items, collectibles or loyalty points. They
+are bound to the <a href="#digital-asset" title="Sets of Native digital tokens, both fungible and non-fungible that are created by 
+asset issuers on the Tari 2nd layer">digital asset</a> that created them.</p>
+<a class="header" href="#instructions" id="instructions"><h2>Instructions</h2></a>
+<p>Instructions are the <a href="#digital-asset-network" title="The Tari second layer. All digital asset interactions are managed here.">digital asset network</a> equivalent of <a href="#transaction" title="Base layer tari coin transfers.">transaction</a>s. Instructions are issued by asset issuers and
+client applications and are relayed by the DAN to the <a href="#validator-node" title="A second-layer node that manages and validates digital asset state transitions">validator node</a>s that are managing the associated
+<a href="#digital-asset" title="Sets of Native digital tokens, both fungible and non-fungible that are created by 
+asset issuers on the Tari 2nd layer">digital asset</a>.</p>
+<a class="header" href="#emission-schedule" id="emission-schedule"><h2>Emission schedule</h2></a>
+<p>An explicit formula as a function of the block height, <em>h</em>, that determines the block reward for the
+<em>h</em><sup>th</sup> block.</p>
+<a class="header" href="#mempool" id="mempool"><h2>Mempool</h2></a>
+<p>The mempool is the set of transactions that have been validated by a base node, but have not yet been included in the
+longest proof-of-work chain. Miners usually draw from the mempool to build up transaction <a href="#block" title="A collection transactions and associated metadata recorded as a single entity in the Tari blockchain">block</a>s.</p>
+<a class="header" href="#mimblewimble" id="mimblewimble"><h2>Mimblewimble</h2></a>
+<p>Mimblewimble is a privacy-centric cryptocurrency protocol. It was
+<a href="https://download.wpsoftware.net/bitcoin/wizardry/mimblewimble.txt">dropped</a> in the Bitcoin Developers chatroom by an
+anonymous author and has since been refined by several authors, including Andrew Poelstra.</p>
+<a class="header" href="#mining-server" id="mining-server"><h2>Mining Server</h2></a>
+<p>A Mining Server is responsible for constructing new blocks by bundling transactions from the <a href="#mempool">mempool</a> of a connected <a href="#base-node" title="A full Tari node running on the base layer, validating and propagating Tari coin transactions and blocks">Base Node</a>. It also distributes Proof-of-Work tasks to Mining Workers and verifies PoW solutions.</p>
+<a class="header" href="#mining-worker" id="mining-worker"><h2>Mining Worker</h2></a>
+<p>A Mining Worker is responsible for performing Proof-of-Work tasks received from its parent <a href="#mining-server">Mining Server</a>.</p>
+<a class="header" href="#range-proof" id="range-proof"><h2>Range proof</h2></a>
+<p>A mathematical demonstration that a value inside a <a href="#commitment">commitment</a> (i.e. it is hidden) lies within a certain range. For
+<a href="#mimblewimble" title="a privacy-centric cryptocurrency protocol">Mimblewimble</a>, range proofs are used to prove that outputs are positive values.</p>
+<a class="header" href="#registrationcollateral" id="registrationcollateral"><h2>RegistrationCollateral</h2></a>
+<p>An amount of tari coin that is locked up on the base layer when a <a href="#validator-node" title="A second-layer node that manages and validates digital asset state transitions">Validator Node</a> is registered. In order to make Sybil attacks expensive and to
+provide an authorative base layer registry of <a href="#validator-node" title="A second-layer node that manages and validates digital asset state transitions">validator node</a>s they will need to lock up a amount of <a href="#tari-coin" title="The base layer token">Tari Coin</a> on the <a href="#base-layer" title="The Tari layer handling payments and secured by proof of work">Base Layer</a> using a
+registration transaction to begin acting as a VN on the DAN.</p>
+<a class="header" href="#registrationterm" id="registrationterm"><h2>RegistrationTerm</h2></a>
+<p>The minimum amount of time that a VN registration lasts, the RegistrationCollateral can only be released after this minimum period has elapsed.</p>
+<a class="header" href="#synchronisationstrategy" id="synchronisationstrategy"><h2>SynchronisationStrategy</h2></a>
+<p>The generalised approach for a <a href="#base-node" title="A full Tari node running on the base layer, validating and propagating Tari coin transactions and blocks">Base Node</a> to obtain the current state of the blockchain from the peer-to-peer network.
+Specific implementations may differ based on different trade-offs and constraints with respect to bandwidth, local
+network conditions etc.</p>
+<a class="header" href="#synchronisationstate" id="synchronisationstate"><h2>SynchronisationState</h2></a>
+<p>The current synchronisation state of a <a href="#base-node" title="A full Tari node running on the base layer, validating and propagating Tari coin transactions and blocks">Base Node</a>. This can either be</p>
+<ul>
+<li><code>new</code> - The blockchain state is empty and is waiting for synchronisation to begin.</li>
+<li><code>synchronising</code> - The blockchain state is in the process of synchronising with the rest of the network.</li>
+<li><code>synchronised</code> - The blockchain state has synchronised with the rest of the network and is in a position to validate
+transactions.</li>
+</ul>
+<a class="header" href="#transaction" id="transaction"><h2>Transaction</h2></a>
+<p>Transactions are activities recorded on the Tari <a href="#blockchain" title="The linked sequence of Tari blocks on the Tari base layer">blockchain</a> running on the <a href="#base-layer" title="The Tari layer handling payments and secured by proof of work">base layer</a>. Transactions always involve a
+transfer of <a href="#tari-coin" title="The base layer token">Tari coin</a>s.</p>
+<a class="header" href="#validationstate" id="validationstate"><h2>ValidationState</h2></a>
+<p>Transactions or blocks are <code>unvalidated</code> when first received by a <a href="#base-node" title="A full Tari node running on the base layer, validating and propagating Tari coin transactions and blocks">Base Node</a>. After validation, they are either
+<code>rejected</code> or <code>validated</code>.</p>
+<p><code>Validated</code> transactions can be added to the <a href="#mempool">mempool</a> and propagated to peers.</p>
+<p><code>Validated</code> blocks are added to the <a href="#blockchain" title="The linked sequence of Tari blocks on the Tari base layer">blockchain</a> and propagated to peers.</p>
+<a class="header" href="#tari-coin" id="tari-coin"><h2>Tari Coin</h2></a>
+<p>The base layer token. Tari coins are released according to the <a href="#emission-schedule">emission schedule</a> on the Tari <a href="#blockchain" title="The linked sequence of Tari blocks on the Tari base layer">base layer</a> in <a href="#coinbase-transaction">coinbase transaction</a>s.</p>
+<a class="header" href="#trusted-node" id="trusted-node"><h2>Trusted Node</h2></a>
+<p>A permissioned Validator Node nominated by an Asset Issuer that will form part of the committee for that Digital Asset.</p>
+<a class="header" href="#unspent-transaction-outputs" id="unspent-transaction-outputs"><h2>Unspent transaction outputs</h2></a>
+<p>An unspent transaction output (UTXO) is a discrete number of Tari that are available to be spent. The sum of all
+UTXOs represents all the Tari currently in circulation. In addition, the sum of all UTXO values equals the sum of the
+<a href="#block-reward" title="The amount of Tari created in every block">block reward</a>s for all blocks up to the current block height.</p>
+<p>UTXO values are hidden by their <a href="#commitment">commitment</a>s. Only the owner of the UTXO and (presumably) the creator of the UTXO
+(either a <a href="#coinbase-transaction">Coinbase transaction</a> or previous spender) know the value of the UTXO.</p>
+<a class="header" href="#validator-node" id="validator-node"><h2>Validator Node</h2></a>
+<p>Validator nodes (VNs) make up the Tari second layer, or <a href="#digital-asset-network" title="The Tari second layer. All digital asset interactions are managed here.">Digital Asset Network</a>. VNs are responsible for creating and
+updating <a href="#digital-asset" title="Sets of Native digital tokens, both fungible and non-fungible that are created by 
+asset issuers on the Tari 2nd layer">digital asset</a>s living on the Tari network.</p>
+<a class="header" href="#wallet" id="wallet"><h2>Wallet</h2></a>
+<p>A Tari Wallet is responsible for managing key pairs, and for constructing and negotiating <a href="#transaction" title="Base layer tari coin transfers.">transaction</a>s for transferring and receiving <a href="#tari-coin" title="The base layer token">tari coin</a>s on the <a href="#base-layer" title="The Tari layer handling payments and secured by proof of work">Base Layer</a>.</p>
+<a class="header" href="#pruning-horizon" id="pruning-horizon"><h2>Pruning horizon</h2></a>
+<p>[pruninghorizon]: #pruninghorizon   &quot;Block height at which pruning will commence&quot;</p>
+<p>This is a local setting for each node to help reduce syncing time and bandwidth. This is the number of blocks from the chain tip beyond which a chain will be pruned.</p>
+<a class="header" href="#archive-node" id="archive-node"><h2>Archive node</h2></a>
+<p>[archivenode]: #archivenode &quot;a full history node&quot;</p>
+<p>This is a full history <a href="#base-node" title="A full Tari node running on the base layer, validating and propagating Tari coin transactions and blocks">base node</a>. It will keep a complete history of every transaction ever received and it will not implement pruning.</p>
+<a class="header" href="#blockchain-state" id="blockchain-state"><h2>Blockchain state</h2></a>
+<p>[blockchainstate]: #blockchainstate &quot;This is a snapshot of how the blockchain looks&quot;</p>
+<p>This is a complete snapshot of the blockchain at a spesific block height. This means pruned <a href="#unspent-transaction-outputs">utxo</a>, complete set of kernals and headers up to that block height from genesis block is known.</p>
+<a class="header" href="#disclaimer-8" id="disclaimer-8"><h1>Disclaimer</h1></a>
+<p>This document is subject to the <a href="../DISCLAIMER.html">disclaimer</a>.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Initialize mermaid -->
+        <script src="theme/js/mermaid.min.js" type="text/javascript" charset="utf-8"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+        
+        <script type="text/javascript">
+        window.addEventListener('load', function() {
+            MathJax.Hub.Register.StartupHook('End', function() {
+                window.setTimeout(window.print, 100);
+            });
+        });
+        </script>
+        
+        
+
+    </body>
+</html>
