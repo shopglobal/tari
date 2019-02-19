@@ -20,12 +20,11 @@
 // WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#[macro_use]
-extern crate bitflags;
+// this file is used for all blockchain error types
+use derive_error::Error;
 
-pub mod block;
-pub mod blockheader;
-pub mod pow;
-pub mod range_proof;
-pub mod transaction;
-pub mod types;
+/// The ChainError is used to present all generic chain error of the actual blockchain
+#[derive(Debug, Error)]
+pub enum ChainError {
+    Brokenchain, // place holder for real error
+}

@@ -20,12 +20,6 @@
 // WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#[macro_use]
-extern crate bitflags;
+// This file is where the database lives
 
-pub mod block;
-pub mod blockheader;
-pub mod pow;
-pub mod range_proof;
-pub mod transaction;
-pub mod types;
+pub struct Store {}
