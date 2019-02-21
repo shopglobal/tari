@@ -29,6 +29,34 @@ use crate::{
 use derive_error::Error;
 use digest::Digest;
 use std::{ops::Mul, prelude::v1::Vec};
+use crate::challenge::MessageHash;
+use std::collections::HashMap;
+
+//----------------------------------------------   Constants       ------------------------------------------------//
+const MAX_SIGNATURES: usize = 32768; // If you need more, call customer support
+
+//----------------------------------------------   Error Codes     ------------------------------------------------//
+#[derive(Debug, Error, PartialEq, Eq)]
+pub enum MuSigError {
+    // The number of public nonces must match the number of public keys in the joint key
+    MismatchedNonces,
+    // The number of partial signatures must match the number of public keys in the joint key
+    MismatchedSignatures,
+    // The aggregate signature did not verify
+    InvalidSignature,
+    // The participant list must be sorted before making this call
+    NotSorted,
+    // The participant key is not in the list
+    ParticipantNotFound,
+    // An attempt was made to perform an invalid MuSig state transition
+    InvalidStateTransition,
+    // An attempt was made to add a duplicate public key to a MuSig signature
+    DuplicatePubKey,
+    // There are too many parties in the MuSig signature
+    TooManyParticipants,
+}
+
+//----------------------------------------------     Joint Key     ------------------------------------------------//
 
 /// The JointKey is a modified public key used in Signature aggregation schemes like MuSig which is not susceptible
 /// to Rogue Key attacks.
@@ -42,18 +70,27 @@ use std::{ops::Mul, prelude::v1::Vec};
 /// Concrete implementations of JointKey will also need to implement the MultiScalarMul trait, which allows them to
 /// provide implementation-specific optimisations for dot-product operations.
 pub struct JointKey<P: PublicKey> {
+    num_signers: usize,
     is_sorted: bool,
     participants: Vec<P>,
 }
 
 impl<K, P> JointKey<P>
-where
-    K: SecretKey + Mul<P, Output = P>,
-    P: PublicKey<K = K>,
+    where
+        K: SecretKey + Mul<P, Output=P>,
+        P: PublicKey<K=K>,
 {
-    /// Create a new JointKey instance containing no participant keys
-    pub fn new() -> JointKey<P> {
-        JointKey { is_sorted: false, participants: Vec::new() }
+    /// Create a new JointKey instance containing no participant keys, or return `TooManyParticipants` if n exceeds
+    /// `MAX_SIGNATURES`
+    pub fn new(n: usize) -> Result<JointKey<P>, MuSigError> {
+        if n > MAX_SIGNATURES {
+            return Err(MuSigError::TooManyParticipants)
+        }
+        Ok(JointKey {
+            is_sorted: false,
+            participants: Vec::with_capacity(n),
+            num_signers: n
+        })
     }
 
     /// If the participant keys are in lexicographical order, returns true.
@@ -61,17 +98,37 @@ where
         self.is_sorted
     }
 
+    /// The number of parties in the MuSig protocol
+    pub fn num_signers(&self) -> usize {
+        self.num_signers
+    }
+
     /// Add a participant signer's public key to the JointKey
-    pub fn add(&mut self, pub_key: P) {
+    pub fn add_key(&mut self, pub_key: P) -> Result<usize, MuSigError> {
+        if self.key_exists(&pub_key) {
+            return Err(MuSigError::DuplicatePubKey);
+        }
+        // push panics on int overflow, so catch this here
+        let n = self.participants.len();
+        if n + 1 >= MAX_SIGNATURES {
+            return Err(MuSigError::TooManyParticipants);
+        }
         self.participants.push(pub_key);
         self.is_sorted = false;
+        Ok(n + 1)
+    }
+
+    /// Checks whether the given public key is in the participants list
+    pub fn key_exists(&self, key: &P) -> bool {
+        self.participants.iter().any(|v| v == key)
     }
 
     /// Add all the keys in `keys` to the participant list.
-    pub fn add_keys<T: IntoIterator<Item = P>>(&mut self, keys: T) {
+    pub fn add_keys<T: IntoIterator<Item=P>>(&mut self, keys: T) -> Result<usize, MuSigError> {
         for k in keys.into_iter() {
-            self.add(k);
+            self.add_key(k)?;
         }
+        Ok(self.participants.len())
     }
 
     /// Utility function to calculate \\( \ell = H(P_1 || ... || P_n) \mod p \\)
@@ -121,13 +178,9 @@ where
         key
     }
 
-    /// Return the index of the given key in the joint key participants list, or None if it isn't in the list
+    /// Return the index of the given key in the joint key participants list. If the list isn\t sorted, returns
+    /// Err(`NotSorted`), and if the key isn't in the list, returns `Err(ParticipantNotFound)`
     pub fn index_of(&self, pubkey: &P) -> Result<usize, MuSigError> {
-        println!(
-            "Participants: {:?}\n SearchFor: {:?}",
-            self.participants.iter().map(|p| p.to_hex()).collect::<String>(),
-            pubkey.to_hex()
-        );
         if !self.is_sorted {
             return Err(MuSigError::NotSorted);
         }
@@ -138,60 +191,155 @@ where
     }
 }
 
-#[derive(Debug, Error, PartialEq, Eq)]
-pub enum MuSigError {
-    // The number of public nonces must match the number of public keys in the joint key
-    MismatchedNonces,
-    // The number of partial signatures must match the numer of public keys in the joint key
-    MismatchedSignatures,
-    // The aggregate signature did not verify
-    InvalidSignature,
-    // The participant list must be sorted before making this call
-    NotSorted,
-    // The participant key is not in the list
-    ParticipantNotFound,
-}
+//----------------------------------------------      MuSig        ------------------------------------------------//
 
 /// MuSig signature aggregation. [MuSig](https://blockstream.com/2018/01/23/musig-key-aggregation-schnorr-signatures/)
 /// is a 3-round signature aggregation protocol.
-/// 1. In the first round, participants share their public keys. From this set of keys, a
-/// [Joint Public Key](structs.JointKey.html) is constructed by all participants.
-/// 2. Participants then share a public nonce, \\( R_i \\), and all participants calculate the shared nonce,
+/// We assume that all the public keys are known and publicly accessible. A [Joint Public Key](structs.JointKey.html)
+/// is constructed by all participants.
+/// 1. In the first round, participants share the hash of their nonces.
+/// 2. Participants then share their public nonce, \\( R_i \\), and all participants calculate the shared nonce,
 ///   \\( R = \sum R_i \\).
 /// 3. Each participant then calculates a partial signature, with the final signature being the sum of all the
 /// partial signatures.
 ///
-/// The `MuSig` struct facilitates the management of rounds 2 and 3. Use [JointKey](structs.JointKey.html) to manage
-/// Round 1.
+/// This protocol is implemented as a Finite State Machine. MuSig is a simple wrapper around a `MusigState` enum that
+/// holds the various states that the MuSig protocol can be in, combined with a `MuSigEvents` enum that enumerates
+/// the relevant input events that can  occur. Any attempt to invoke an invalid transition, or any other failure
+/// condition results in the `Failure` state; in which case the MuSig protocol should be abandoned.
+///
+/// Rust's type system is leveraged to prevent any rewinding of state; old state variables are destroyed when
+/// transitioning to new states. The MuSig variable also _takes ownership_ of the nonce key, reducing the risk of
+/// nonce reuse (though obviously it doesn't eliminate it). Let's be clear: REUSING a nonce WILL result in your secret
+/// key being discovered. See
+/// [this post](https://tlu.tarilabs.com/cryptography/digital_signatures/introduction_schnorr_signatures.html#musig)
+/// for details.
 pub struct MuSig<P: PublicKey> {
-    joint_key: JointKey<P>,
-    public_nonces: Vec<P>,
+    state: MuSigState<P>,
 }
 
 impl<K, P> MuSig<P>
-where
-    K: SecretKey + Mul<P, Output = P>,
-    P: PublicKey<K = K>,
+    where
+        K: SecretKey + Mul<P, Output=P>,
+        P: PublicKey<K=K>,
 {
-    fn new(joint_key: JointKey<P>) -> MuSig<P> {
-        unimplemented!()
+    pub fn new(n: usize) -> MuSig<P> {
+        let state = match Initialization::new(n) {
+            Ok(s) => MuSigState::Initialization(s),
+            Err(e) => MuSigState::Failed(e),
+        };
+        MuSig { state }
     }
 
-    fn add_public_nonce(r: P) {}
-
-    fn add_partial_signature(s: K) {}
-
-    fn calculate_my_partial_signature<S>(nonce: &K, secret: &K) -> S
-    where S: SchnorrSignature<Point = P, Scalar = K> {
-        unimplemented!()
+    fn invalid() -> MuSigState<P> {
+        MuSigState::Failed(MuSigError::InvalidStateTransition)
     }
 
-    fn calculate_agg_sig<S>() -> Result<S, MuSigError>
-    where S: SchnorrSignature<Point = P, Scalar = K> {
-        unimplemented!()
+    /// Implement a finite state machine. Each combination of State and Event is handled here; for each combination, a
+    /// new state is determined, consuming the old one. If `MuSigState::Failed` is ever returned, the protocol must be
+    /// abandoned.
+    pub fn handle_event(mut self, event: MuSigEvent<P>) -> Self {
+        let new_state = match (self.state, event) {
+            // On initialization, you can add keys until you reach `num_signers` at which point the state
+            // automatically flips to `NonceHashCollection`
+            (MuSigState::Initialization(s), MuSigEvent::AddKey(p)) => s.add_pubkey(p),
+            (MuSigState::Initialization(_), _) => MuSig::invalid(),
+            // Nonce Hash collection
+            (MuSigState::NonceHashCollection(s), MuSigEvent::AddNonceHash(p, h)) => s.add_nonce_hash(p, h),
+            (MuSigState::NonceHashCollection(_), _) => MuSig::invalid(),
+            // There's no way back from a Failed State.
+            (MuSigState::Failed(_), _) => MuSig::invalid(),
+            _ => MuSig::invalid(),
+        };
+        self.state = new_state;
+        self
+    }
+}
+
+//-------------------------------------------  MuSig State Definitions ---------------------------------------------//
+
+pub enum MuSigEvent<'a, P: PublicKey> {
+    AddKey(P),
+    AddNonceHash(&'a P, MessageHash),
+    AddNonce,
+    AddPartialSig,
+}
+
+enum MuSigState<P: PublicKey> {
+    Initialization(Initialization<P>),
+    NonceHashCollection(NonceHashCollection<P>),
+    NonceCollection,
+    SignatureCollection,
+    Finalized,
+    Failed(MuSigError),
+}
+
+struct Initialization<P: PublicKey> {
+    joint_key: JointKey<P>,
+}
+
+impl<P, K> Initialization<P>
+    where
+        K: SecretKey + Mul<P, Output=P>,
+        P: PublicKey<K=K>,
+{
+    pub fn new(n: usize) -> Result<Initialization<P>, MuSigError> {
+        let joint_key = JointKey::new(n)?;
+        Ok(Initialization { joint_key })
     }
 
-    fn verify_signature() -> bool {
-        unimplemented!()
+    pub fn add_pubkey(mut self, key: P) -> MuSigState<P> {
+        match self.joint_key.add_key(key) {
+            Ok(n) => {
+                if n == self.joint_key.num_signers() {
+                    MuSigState::NonceHashCollection(NonceHashCollection::new(self))
+                } else {
+                    self.joint_key.sort_keys();
+                    MuSigState::Initialization(self)
+                }
+            }
+            Err(e) => MuSigState::Failed(e),
+        }
+    }
+}
+
+struct NonceHashCollection<P: PublicKey> {
+    joint_key: JointKey<P>,
+    nonce_hashes: Vec<MessageHash>,
+    nonce_hash_supplied: Vec<bool>,
+}
+
+impl<P, K> NonceHashCollection<P>
+    where
+        K: SecretKey + Mul<P, Output=P>,
+        P: PublicKey<K=K>,
+{
+    fn new(init: Initialization<P>) -> NonceHashCollection<P> {
+        let n = init.joint_key.num_signers;
+        let bool_vec = vec![false; n];
+        NonceHashCollection {
+            joint_key: init.joint_key,
+            nonce_hashes: Vec::with_capacity(n),
+            nonce_hash_supplied: bool_vec,
+        }
+    }
+
+    fn all_nonces_supplied(&self) -> bool {
+        self.nonce_hash_supplied.iter().all(|v| *v)
+    }
+
+    pub fn add_nonce_hash(mut self, pub_key: &P, hash: MessageHash) -> MuSigState<P> {
+        match self.joint_key.index_of(pub_key) {
+            Ok(i) => {
+                self.nonce_hashes.insert(i, hash);
+                self.nonce_hash_supplied[i] = true;
+                if self.all_nonces_supplied() {
+                    MuSigState::NonceCollection
+                } else {
+                    MuSigState::NonceHashCollection(self)
+                }
+            },
+            Err(e) => MuSigState::Failed(MuSigError::ParticipantNotFound),
+        }
     }
 }

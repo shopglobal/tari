@@ -42,8 +42,8 @@ mod test {
         let (_, p1) = get_keypair();
         let (_, p2) = get_keypair();
         let mut jk: JointKey<RistrettoPublicKey> = JointKey::new();
-        jk.add(p1);
-        jk.add(p2);
+        jk.add_key(p1);
+        jk.add_key(p2);
         let s: Vec<RistrettoSecretKey> = jk.calculate_musig_scalars::<Sha256>();
         let ell = hash_pair(p1.to_bytes(), p2.to_bytes());
         assert_eq!(ell, jk.calculate_common::<Sha256>(), "Ell is not equal");
@@ -62,9 +62,9 @@ mod test {
         let (_, p3) = get_keypair();
         let mut jk1 = JointKey::new();
         let mut jk2 = JointKey::new();
-        jk2.add(p1.clone());
-        jk2.add(p2.clone());
-        jk2.add(p3.clone());
+        jk2.add_key(p1.clone());
+        jk2.add_key(p2.clone());
+        jk2.add_key(p3.clone());
         let v = vec![p1, p2, p3].into_iter();
         jk1.add_keys(v);
         assert_eq!(jk1.calculate_joint_key::<Sha256>(), jk2.calculate_joint_key::<Sha256>());
