@@ -69,6 +69,13 @@ impl<D: Digest> Challenge<D> {
     pub fn hash(self) -> MessageHash {
         self.hasher.result().to_vec()
     }
+
+    /// Convenience function that returns the hash of the input
+    pub fn hash_input(data: Vec<u8>) -> MessageHash {
+        Challenge::<D>::new()
+            .concat(&data)
+            .hash()
+    }
 }
 
 impl<D> From<Challenge<D>> for Challenge256Bit

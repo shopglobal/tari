@@ -30,7 +30,6 @@ use derive_error::Error;
 use digest::Digest;
 use std::{ops::Mul, prelude::v1::Vec};
 use crate::challenge::MessageHash;
-use std::collections::HashMap;
 
 //----------------------------------------------   Constants       ------------------------------------------------//
 const MAX_SIGNATURES: usize = 32768; // If you need more, call customer support
@@ -84,12 +83,12 @@ impl<K, P> JointKey<P>
     /// `MAX_SIGNATURES`
     pub fn new(n: usize) -> Result<JointKey<P>, MuSigError> {
         if n > MAX_SIGNATURES {
-            return Err(MuSigError::TooManyParticipants)
+            return Err(MuSigError::TooManyParticipants);
         }
         Ok(JointKey {
             is_sorted: false,
             participants: Vec::with_capacity(n),
-            num_signers: n
+            num_signers: n,
         })
     }
 
@@ -223,6 +222,7 @@ impl<K, P> MuSig<P>
         K: SecretKey + Mul<P, Output=P>,
         P: PublicKey<K=K>,
 {
+    /// Create a new, empty MuSig ceremony for _n_ participants
     pub fn new(n: usize) -> MuSig<P> {
         let state = match Initialization::new(n) {
             Ok(s) => MuSigState::Initialization(s),
@@ -231,44 +231,84 @@ impl<K, P> MuSig<P>
         MuSig { state }
     }
 
-    fn invalid() -> MuSigState<P> {
+    /// Convenience wrapper function to determined whether a signing ceremony has failed
+    pub fn has_failed(&self) -> bool {
+        match self.state {
+            MuSigState::Failed(_) => true,
+            _ => false,
+        }
+    }
+
+    pub fn add_public_key(mut self, key: &P) -> Self {
+        let key = key.clone();
+        self.handle_event(MuSigEvent::AddKey(key))
+    }
+
+    pub fn add_nonce_commitment(mut self, pub_key: &P, commitment: MessageHash) -> Self {
+        self.handle_event(MuSigEvent::AddNonceHash(pub_key, commitment))
+    }
+
+    /// Private convenience function that returns a Failed state with the `InvalidStateTransition` error
+    fn invalid_transition() -> MuSigState<P> {
         MuSigState::Failed(MuSigError::InvalidStateTransition)
     }
 
     /// Implement a finite state machine. Each combination of State and Event is handled here; for each combination, a
     /// new state is determined, consuming the old one. If `MuSigState::Failed` is ever returned, the protocol must be
     /// abandoned.
-    pub fn handle_event(mut self, event: MuSigEvent<P>) -> Self {
-        let new_state = match (self.state, event) {
+    fn handle_event(mut self, event: MuSigEvent<P>) -> Self {
+        let state = match self.state {
             // On initialization, you can add keys until you reach `num_signers` at which point the state
-            // automatically flips to `NonceHashCollection`
-            (MuSigState::Initialization(s), MuSigEvent::AddKey(p)) => s.add_pubkey(p),
-            (MuSigState::Initialization(_), _) => MuSig::invalid(),
+            // automatically flips to `NonceHashCollection`; we're forced to use nested patterns because of error
+            MuSigState::Initialization(s) => {
+                match event {
+                    MuSigEvent::AddKey(p) => s.add_pubkey(p),
+                    _ => MuSig::invalid_transition(),
+                }
+            },
             // Nonce Hash collection
-            (MuSigState::NonceHashCollection(s), MuSigEvent::AddNonceHash(p, h)) => s.add_nonce_hash(p, h),
-            (MuSigState::NonceHashCollection(_), _) => MuSig::invalid(),
+            MuSigState::NonceHashCollection(s) => {
+                match event {
+                    MuSigEvent::AddNonceHash(p, h) => s.add_nonce_hash(p, h.clone()),
+                    _ => MuSig::invalid_transition(),
+                }
+            },
             // There's no way back from a Failed State.
-            (MuSigState::Failed(_), _) => MuSig::invalid(),
-            _ => MuSig::invalid(),
+            MuSigState::Failed(_) => MuSig::invalid_transition(),
+            _ => MuSig::invalid_transition(),
         };
-        self.state = new_state;
-        self
+        MuSig { state }
     }
+}
+
+//-------------------------------------------  MuSig Event Definitions ---------------------------------------------//
+
+/// The set of possible input events that can occur during the MuSig signature aggregation protocol.
+pub enum MuSigEvent<'a, P: PublicKey> {
+    /// This event is used to add a new public key to the pool of participant keys
+    AddKey(P),
+    /// This event is used by participants to commit the the public nonce that they will be using the signature
+    /// aggregation ceremony
+    AddNonceHash(&'a P, MessageHash),
+    /// This event is used to add a public nonce to the pool of nonces for a particular signing ceremony
+    AddNonce,
+    /// In the 3rd round of MuSig, participants provide their partial signatures, after which any party can
+    /// calculate the aggregated signature.
+    AddPartialSig,
 }
 
 //-------------------------------------------  MuSig State Definitions ---------------------------------------------//
 
-pub enum MuSigEvent<'a, P: PublicKey> {
-    AddKey(P),
-    AddNonceHash(&'a P, MessageHash),
-    AddNonce,
-    AddPartialSig,
-}
 
+/// This (private) enum represents the set of states that define the MuSig protocol. Metadata relevant to a given
+/// state is supplied as an associated struct of the same name as the struct. Illegal state transitions are prevented
+/// by a) there being no way to move from a given state's methods to another state using an invalid transition and b)
+/// the global `match` clause in the [MuSig](structs.MuSig.html) struct implementation. Any invalid transition
+/// attempt leads to the `Failed` state.
 enum MuSigState<P: PublicKey> {
     Initialization(Initialization<P>),
     NonceHashCollection(NonceHashCollection<P>),
-    NonceCollection,
+    NonceCollection(NonceCollection<P>),
     SignatureCollection,
     Finalized,
     Failed(MuSigError),
@@ -305,8 +345,7 @@ impl<P, K> Initialization<P>
 
 struct NonceHashCollection<P: PublicKey> {
     joint_key: JointKey<P>,
-    nonce_hashes: Vec<MessageHash>,
-    nonce_hash_supplied: Vec<bool>,
+    nonce_hashes: FixedSet<MessageHash>,
 }
 
 impl<P, K> NonceHashCollection<P>
@@ -316,30 +355,175 @@ impl<P, K> NonceHashCollection<P>
 {
     fn new(init: Initialization<P>) -> NonceHashCollection<P> {
         let n = init.joint_key.num_signers;
-        let bool_vec = vec![false; n];
         NonceHashCollection {
             joint_key: init.joint_key,
-            nonce_hashes: Vec::with_capacity(n),
-            nonce_hash_supplied: bool_vec,
+            nonce_hashes: FixedSet::new(n),
         }
-    }
-
-    fn all_nonces_supplied(&self) -> bool {
-        self.nonce_hash_supplied.iter().all(|v| *v)
     }
 
     pub fn add_nonce_hash(mut self, pub_key: &P, hash: MessageHash) -> MuSigState<P> {
         match self.joint_key.index_of(pub_key) {
             Ok(i) => {
-                self.nonce_hashes.insert(i, hash);
-                self.nonce_hash_supplied[i] = true;
-                if self.all_nonces_supplied() {
-                    MuSigState::NonceCollection
+                self.nonce_hashes.set_item(i, hash);
+                if self.nonce_hashes.is_full() {
+                    MuSigState::NonceCollection(NonceCollection::new(self))
                 } else {
                     MuSigState::NonceHashCollection(self)
                 }
-            },
+            }
             Err(e) => MuSigState::Failed(MuSigError::ParticipantNotFound),
         }
+    }
+}
+
+struct NonceCollection<P: PublicKey> {
+    joint_key: JointKey<P>,
+    nonce_hashes: FixedSet<MessageHash>,
+    public_nonces: FixedSet<P>,
+}
+
+impl<P, K> NonceCollection<P>
+    where
+        K: SecretKey + Mul<P, Output=P>,
+        P: PublicKey<K=K>,
+{
+    fn new(init: NonceHashCollection<P>) -> NonceCollection<P> {
+        let n = init.joint_key.num_signers;
+        NonceCollection {
+            joint_key: init.joint_key,
+            nonce_hashes: init.nonce_hashes,
+            public_nonces: FixedSet::new(n),
+        }
+    }
+
+    fn all_nonces_valid<D: Digest>(&self) -> bool {
+        if !self.public_nonces.is_full() {
+            return false;
+        }
+        // nonce_hashes must be full, otherwise we wouldn't have gotten to this state. So panic if this is not
+        // the case
+        self.public_nonces.items.iter()
+            .map(|r| Challenge::<D>::hash_input(r.clone().unwrap().to_vec()))
+            .zip(self.nonce_hashes.items.iter())
+            .all(|(calc, expect)| {
+                let expect = expect.as_ref().unwrap();
+                calc == *expect
+            })
+    }
+
+    /// We definitely want to consume R here to discourage nonce re-use
+    pub fn add_nonce(mut self, pub_key: &P, nonce: P) -> MuSigState<P> {
+        match self.joint_key.index_of(pub_key) {
+            Ok(i) => {
+                self.public_nonces.set_item(i, nonce);
+                if self.public_nonces.is_full() {
+                    MuSigState::SignatureCollection
+                } else {
+                    MuSigState::NonceCollection(self)
+                }
+            }
+            Err(e) => MuSigState::Failed(MuSigError::ParticipantNotFound),
+        }
+    }
+}
+
+
+//-------------------------------------------         Fixed Set          ---------------------------------------------//
+
+pub struct FixedSet<T> {
+    items: Vec<Option<T>>,
+}
+
+impl<T: Clone> FixedSet<T> {
+    pub fn new(n: usize) -> FixedSet<T> {
+        FixedSet {
+            items: vec![None; n],
+        }
+    }
+
+    pub fn set_item(&mut self, index: usize, val: T) -> bool {
+        if index >= self.items.len() {
+            return false;
+        }
+        self.items[index] = Some(val);
+        true
+    }
+
+    pub fn get_item(&self, index: usize) -> Option<&T> {
+        match self.items.get(index) {
+            None => None,
+            Some(option) => option.as_ref()
+        }
+    }
+
+    pub fn clear_item(&mut self, index: usize) {
+        if index < self.items.len() {
+            self.items[index] = None;
+        }
+    }
+
+    /// Returns true if every item in the set has been set. An empty set returns true as well.
+    pub fn is_full(&self) -> bool {
+        self.items.iter().all(|v| v.is_some())
+    }
+}
+
+//-------------------------------------------         Tests              ---------------------------------------------//
+
+#[cfg(test)]
+mod test {
+    use super::FixedSet;
+
+    #[derive(Eq, PartialEq, Clone)]
+    struct Foo {
+        baz: String,
+    }
+
+    #[test]
+    fn zero_sized_fixed_set() {
+        let mut s = FixedSet::<usize>::new(0);
+        assert!(s.is_full(), "Set should be full");
+        assert_eq!(s.set_item(1, 1), false, "Should not be able to set item");
+        assert_eq!(s.get_item(0), None, "Should not return a value");
+    }
+
+    fn data(s: &str) -> Foo {
+        match s {
+            "patrician" => Foo { baz: "The Patrician".into() },
+            "rincewind" => Foo { baz: "Rincewind".into() },
+            "vimes" => Foo { baz: "Commander Vimes".into() },
+            "librarian" => Foo { baz: "The Librarian".into() },
+            "carrot" => Foo { baz: "Captain Carrot".into() },
+            _ => Foo { baz: "None".into() },
+        }
+    }
+
+    #[test]
+    fn small_set() {
+        let mut s = FixedSet::<Foo>::new(3);
+        // Set is empty
+        assert_eq!(s.is_full(), false);
+        // Add an item
+        assert!(s.set_item(1, data("patrician")));
+        assert_eq!(s.is_full(), false);
+        // Add an item
+        assert!(s.set_item(0, data("vimes")));
+        assert_eq!(s.is_full(), false);
+        // Replace an item
+        assert!(s.set_item(1, data("rincewind")));
+        assert_eq!(s.is_full(), false);
+        // Add item, filling set
+        assert!(s.set_item(2, data("carrot")));
+        assert_eq!(s.is_full(), true);
+        // Try add an invalid item
+        assert_eq!(s.set_item(3, data("librarian")), false);
+        assert_eq!(s.is_full(), true);
+        // Clear an item
+        s.clear_item(1);
+        assert_eq!(s.is_full(), false);
+        // Check contents
+        assert_eq!(s.get_item(0).unwrap().baz, "Commander Vimes");
+        assert!(s.get_item(1).is_none());
+        assert_eq!(s.get_item(2).unwrap().baz, "Captain Carrot");
     }
 }

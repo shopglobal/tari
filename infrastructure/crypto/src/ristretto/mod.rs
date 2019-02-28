@@ -23,7 +23,7 @@
 pub mod constants;
 pub mod pedersen;
 pub mod ristretto_keys;
-pub mod ristretto_musig;
+//pub mod ristretto_musig;
 pub mod ristretto_sig;
 
 // Re-export
