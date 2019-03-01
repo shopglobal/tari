@@ -239,12 +239,12 @@ impl<K, P> MuSig<P>
         }
     }
 
-    pub fn add_public_key(mut self, key: &P) -> Self {
+    pub fn add_public_key(self, key: &P) -> Self {
         let key = key.clone();
         self.handle_event(MuSigEvent::AddKey(key))
     }
 
-    pub fn add_nonce_commitment(mut self, pub_key: &P, commitment: MessageHash) -> Self {
+    pub fn add_nonce_commitment(self, pub_key: &P, commitment: MessageHash) -> Self {
         self.handle_event(MuSigEvent::AddNonceHash(pub_key, commitment))
     }
 
@@ -256,7 +256,7 @@ impl<K, P> MuSig<P>
     /// Implement a finite state machine. Each combination of State and Event is handled here; for each combination, a
     /// new state is determined, consuming the old one. If `MuSigState::Failed` is ever returned, the protocol must be
     /// abandoned.
-    fn handle_event(mut self, event: MuSigEvent<P>) -> Self {
+    fn handle_event(self, event: MuSigEvent<P>) -> Self {
         let state = match self.state {
             // On initialization, you can add keys until you reach `num_signers` at which point the state
             // automatically flips to `NonceHashCollection`; we're forced to use nested patterns because of error
@@ -309,7 +309,7 @@ enum MuSigState<P: PublicKey> {
     Initialization(Initialization<P>),
     NonceHashCollection(NonceHashCollection<P>),
     NonceCollection(NonceCollection<P>),
-    SignatureCollection,
+    SignatureCollection(SignatureCollection<P>),
     Finalized,
     Failed(MuSigError),
 }
@@ -361,7 +361,7 @@ impl<P, K> NonceHashCollection<P>
         }
     }
 
-    pub fn add_nonce_hash(mut self, pub_key: &P, hash: MessageHash) -> MuSigState<P> {
+    fn add_nonce_hash(mut self, pub_key: &P, hash: MessageHash) -> MuSigState<P> {
         match self.joint_key.index_of(pub_key) {
             Ok(i) => {
                 self.nonce_hashes.set_item(i, hash);
@@ -371,7 +371,7 @@ impl<P, K> NonceHashCollection<P>
                     MuSigState::NonceHashCollection(self)
                 }
             }
-            Err(e) => MuSigState::Failed(MuSigError::ParticipantNotFound),
+            Err(_) => MuSigState::Failed(MuSigError::ParticipantNotFound),
         }
     }
 }
@@ -411,19 +411,44 @@ impl<P, K> NonceCollection<P>
             })
     }
 
-    /// We definitely want to consume R here to discourage nonce re-use
-    pub fn add_nonce(mut self, pub_key: &P, nonce: P) -> MuSigState<P> {
+    // We definitely want to consume `nonce` here to discourage nonce re-use
+    fn add_nonce(mut self, pub_key: &P, nonce: P) -> MuSigState<P> {
         match self.joint_key.index_of(pub_key) {
             Ok(i) => {
                 self.public_nonces.set_item(i, nonce);
                 if self.public_nonces.is_full() {
-                    MuSigState::SignatureCollection
+                    MuSigState::SignatureCollection(SignatureCollection::new(self))
                 } else {
                     MuSigState::NonceCollection(self)
                 }
             }
-            Err(e) => MuSigState::Failed(MuSigError::ParticipantNotFound),
+            Err(_) => MuSigState::Failed(MuSigError::ParticipantNotFound),
         }
+    }
+}
+
+struct SignatureCollection<P: PublicKey> {
+    joint_key: JointKey<P>,
+    public_nonces: FixedSet<P>,
+    partial_signatures: FixedSet<P>,
+}
+
+impl<P, K> SignatureCollection<P>
+    where
+        K: SecretKey + Mul<P, Output=P>,
+        P: PublicKey<K=K>,
+{
+    fn new(init: NonceCollection<P>) -> SignatureCollection<P> {
+        let n = init.joint_key.num_signers;
+        SignatureCollection {
+            joint_key: init.joint_key,
+            public_nonces: init.public_nonces,
+            partial_signatures: FixedSet::new(n)
+        }
+    }
+
+    fn add_partial_signature(mut self, signature: &SchnorrSignature) -> MuSigState<P> {
+
     }
 }
 
@@ -435,12 +460,15 @@ pub struct FixedSet<T> {
 }
 
 impl<T: Clone> FixedSet<T> {
+
+    /// Creates a new fixed set of size n.
     pub fn new(n: usize) -> FixedSet<T> {
         FixedSet {
             items: vec![None; n],
         }
     }
 
+    /// Set the `index`th item to `val`. Any existing item is overwritten. The set takes ownership of `val`.
     pub fn set_item(&mut self, index: usize, val: T) -> bool {
         if index >= self.items.len() {
             return false;
@@ -449,6 +477,7 @@ impl<T: Clone> FixedSet<T> {
         true
     }
 
+    /// Return a reference to the `index`th item, or `None` if that item has not been set yet.
     pub fn get_item(&self, index: usize) -> Option<&T> {
         match self.items.get(index) {
             None => None,
@@ -456,6 +485,7 @@ impl<T: Clone> FixedSet<T> {
         }
     }
 
+    /// Delete an item from the set by setting the `index`th value to None
     pub fn clear_item(&mut self, index: usize) {
         if index < self.items.len() {
             self.items[index] = None;
