@@ -2,80 +2,98 @@
 //! This module defines generic traits for handling the digital signature operations, agnostic
 //! of the underlying elliptic curve implementation
 
-use crate::keys::{PublicKey, SecretKey};
-use crate::challenge::Challenge;
-use digest::Digest;
+use crate::{
+    challenge::Challenge,
+    keys::{PublicKey, SecretKey},
+};
 use derive_error::Error;
-use crate::common::ByteArrayError;
-use core::num::flt2dec::Sign;
+use digest::Digest;
+use std::ops::{Add, Mul};
 
 #[derive(Debug, Error, PartialEq, Eq)]
-pub enum SignatureError {
+pub enum SchnorrSignatureError {
     // An invalid challenge was provided
     InvalidChallenge,
 }
 
-
 #[allow(non_snake_case)]
-pub struct Signature<P, K> where
-    P: PublicKey<K=K>,
+#[derive(PartialEq, Eq, Copy, Debug, Clone)]
+pub struct SchnorrSignature<P, K>
+where
+    P: PublicKey<K = K>,
     K: SecretKey,
 {
     public_nonce: P,
     signature: K,
 }
 
-pub trait SchnorrSignature {
-    type Scalar: SecretKey;
-    type Point: PublicKey<K=Self::Scalar>;
+impl<P, K> SchnorrSignature<P, K>
+where
+    P: PublicKey<K = K>,
+    K: SecretKey,
+{
+    pub fn new(public_nonce: P, signature: K) -> Self {
+        SchnorrSignature { public_nonce, signature }
+    }
 
-    fn new(public_nonce: Self::Point, signature: Self::Scalar) -> Self;
+    pub fn calc_signature_verifier(&self) -> P {
+        P::from_secret_key(&self.signature)
+    }
 
-    fn sign<D: Digest>(secret: &Self::Scalar, nonce: &Self::Scalar, challenge: &Challenge<D>) -> Result<Self,
-        SignatureError>;
+    pub fn sign<'a, 'b, D: Digest>(
+        secret: K,
+        nonce: K,
+        challenge: Challenge<D>,
+    ) -> Result<Self, SchnorrSignatureError>
+    where
+        K: Add<Output = K> + Mul<P, Output = P> + Mul<Output = K>,
+    {
+        // s = r + e.k
+        let e = match K::from_vec(&challenge.hash()) {
+            Ok(e) => e,
+            Err(_) => return Err(SchnorrSignatureError::InvalidChallenge),
+        };
+        let public_nonce = P::from_secret_key(&nonce);
+        let ek = e * secret;
+        let s = ek + nonce;
+        Ok(Self::new(public_nonce, s))
+    }
 
-    /// Check whether the given signature is valid for the given message and public key
-    fn verify<D: Digest>(&self, public_key: &Self::Point, challenge: &Challenge<D>) -> bool;
+    pub fn verify<'a, D: Digest>(&self, public_key: &'a P, challenge: Challenge<D>) -> bool
+    where K: Mul<&'a P, Output = P> {
+        let lhs = self.calc_signature_verifier();
+        let e = match K::from_vec(&challenge.hash()) {
+            Ok(e) => e,
+            Err(_) => return false,
+        };
+        let rhs = self.public_nonce.clone() + e * public_key;
+        // Implementors should make this a constant time comparison
+        lhs == rhs
+    }
 
-    fn get_signature(&self) -> &Self::Scalar;
+    #[inline]
+    pub fn get_signature(&self) -> &K {
+        &self.signature
+    }
 
-    fn get_public_nonce(&self) -> &Self::Point;
+    #[inline]
+    pub fn get_public_nonce(&self) -> &P {
+        &self.public_nonce
+    }
 }
 
-
-impl<P, K> SchnorrSignature for Signature<P, K>
-    where
-        P: PublicKey<K=K>,
-        K: SecretKey,
+impl<'a, 'b, P, K> Add<&'b SchnorrSignature<P, K>> for &'a SchnorrSignature<P, K>
+where
+    P: PublicKey<K = K>,
+    &'a P: Add<&'b P, Output = P>,
+    K: SecretKey,
+    &'a K: Add<&'b K, Output = K>,
 {
-    type Scalar = K;
-    type Point = P;
+    type Output = SchnorrSignature<P, K>;
 
-    fn new(public_nonce: Self::Point, signature: Self::Scalar) -> Self {
-        Signature { public_nonce, signature }
-    }
-
-    fn sign<D: Digest>(secret: &Self::Scalar, nonce: &Self::Scalar, challenge: &Challenge<D>) -> Result<Self,
-        SignatureError> {
-        // s = r + e.k
-        let e = match Self::Scalar::from_vec(&challenge.hash()) {
-            Ok(e) => e,
-            Err(_) => return Err(SignatureError::InvalidChallenge),
-        };
-        let s = &nonce + &(&secret * &e);
-        let public_nonce = Self::Point::from_secret_key(nonce);
-        Some(Self::new(public_nonce, s))
-    }
-
-    fn verify<D: Digest>(&self, public_key: &Self::Point, challenge: &Challenge<D>) -> bool {
-        unimplemented!()
-    }
-
-    fn get_signature(&self) -> &Self::Scalar {
-        unimplemented!()
-    }
-
-    fn get_public_nonce(&self) -> &Self::Point {
-        unimplemented!()
+    fn add(self, rhs: &'b SchnorrSignature<P, K>) -> SchnorrSignature<P, K> {
+        let r_sum = self.get_public_nonce() + rhs.get_public_nonce();
+        let s_sum = self.get_signature() + rhs.get_signature();
+        SchnorrSignature::new(r_sum, s_sum)
     }
 }

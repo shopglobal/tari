@@ -62,11 +62,21 @@ pub struct RistrettoSecretKey(pub(crate) Scalar);
 const SCALAR_LENGTH: usize = 32;
 const PUBLIC_KEY_LENGTH: usize = 32;
 
+//-----------------------------------------   Ristretto Secret Key    ------------------------------------------------//
 impl SecretKey for RistrettoSecretKey {
     fn key_length() -> usize {
         SCALAR_LENGTH
     }
 }
+
+/// Return a random secret key on the `ristretto255` curve using the supplied CSPRNG.
+impl SecretKeyFactory for RistrettoSecretKey {
+    fn random<R: CryptoRng + Rng>(rng: &mut R) -> Self {
+        RistrettoSecretKey(Scalar::random(rng))
+    }
+}
+
+//-------------------------------------  Ristretto Secret Key ByteArray  ---------------------------------------------//
 
 impl ByteArray for RistrettoSecretKey {
     /// Create a secret key on the Ristretto255 curve using the given little-endian byte array. If the byte array is
@@ -89,30 +99,37 @@ impl ByteArray for RistrettoSecretKey {
     }
 }
 
-/// Return a random secret key on the `ristretto255` curve using the supplied CSPRNG.
-impl SecretKeyFactory for RistrettoSecretKey {
-    fn random<R: CryptoRng + Rng>(rng: &mut R) -> Self {
-        RistrettoSecretKey(Scalar::random(rng))
-    }
-}
+//----------------------------------   RistrettoSecretKey Mul / Add / Sub --------------------------------------------//
 
-impl Mul<RistrettoPublicKey> for RistrettoSecretKey {
+impl<'a, 'b> Mul<&'b RistrettoPublicKey> for &'a RistrettoSecretKey {
     type Output = RistrettoPublicKey;
 
-    fn mul(self, rhs: RistrettoPublicKey) -> RistrettoPublicKey {
+    fn mul(self, rhs: &'b RistrettoPublicKey) -> RistrettoPublicKey {
         let p = &self.0 * &rhs.point;
         RistrettoPublicKey::new_from_pk(p)
     }
 }
 
-impl Mul<&RistrettoPublicKey> for RistrettoSecretKey {
-    type Output = RistrettoPublicKey;
+impl<'a, 'b> Add<&'b RistrettoSecretKey> for &'a RistrettoSecretKey {
+    type Output = RistrettoSecretKey;
 
-    fn mul(self, rhs: &RistrettoPublicKey) -> RistrettoPublicKey {
-        let p = &self.0 * &rhs.point;
-        RistrettoPublicKey::new_from_pk(p)
+    fn add(self, rhs: &'b RistrettoSecretKey) -> RistrettoSecretKey {
+        let k = &self.0 + &rhs.0;
+        RistrettoSecretKey(k)
     }
 }
+
+impl<'a, 'b> Sub<&'b RistrettoSecretKey> for &'a RistrettoSecretKey {
+    type Output = RistrettoSecretKey;
+
+    fn sub(self, rhs: &'b RistrettoSecretKey) -> RistrettoSecretKey {
+        RistrettoSecretKey(&self.0 - &rhs.0)
+    }
+}
+
+define_add_variants!(LHS = RistrettoSecretKey, RHS = RistrettoSecretKey, Output = RistrettoSecretKey);
+define_sub_variants!(LHS = RistrettoSecretKey, RHS = RistrettoSecretKey, Output = RistrettoSecretKey);
+define_mul_variants!(LHS = RistrettoSecretKey, RHS = RistrettoPublicKey, Output = RistrettoPublicKey);
 
 //--------------------------------------------- Ristretto Public Key -------------------------------------------------//
 
@@ -169,6 +186,8 @@ impl PublicKey for RistrettoPublicKey {
     }
 }
 
+//------------------------------------ PublicKey PartialEq, Eq, Ord impl ---------------------------------------------//
+
 impl PartialEq for RistrettoPublicKey {
     fn eq(&self, other: &RistrettoPublicKey) -> bool {
         // Although this is slower than `self.compressed == other.compressed`, expanded point comparison is an equal
@@ -190,6 +209,8 @@ impl Ord for RistrettoPublicKey {
         self.compressed.to_bytes().cmp(&other.compressed.to_bytes())
     }
 }
+
+//---------------------------------- PublicKey ByteArray implementation  ---------------------------------------------//
 
 impl ByteArray for RistrettoPublicKey {
     /// Create a new `RistrettoPublicKey` instance form the given byte array. The constructor returns errors under
@@ -215,56 +236,50 @@ impl ByteArray for RistrettoPublicKey {
     }
 }
 
-impl Add for &RistrettoPublicKey {
+//----------------------------------         PublicKey Add / Sub / Mul   ---------------------------------------------//
+
+impl<'a, 'b> Add<&'b RistrettoPublicKey> for &'a RistrettoPublicKey {
     type Output = RistrettoPublicKey;
 
-    fn add(self, rhs: &RistrettoPublicKey) -> Self::Output {
+    fn add(self, rhs: &'b RistrettoPublicKey) -> RistrettoPublicKey {
         let p_sum = &self.point + &rhs.point;
         RistrettoPublicKey::new_from_pk(p_sum)
     }
 }
 
-impl Add for RistrettoPublicKey {
+impl<'a, 'b> Sub<&'b RistrettoPublicKey> for &'a RistrettoPublicKey {
     type Output = RistrettoPublicKey;
 
-    fn add(self, rhs: RistrettoPublicKey) -> Self::Output {
-        &self + &rhs
-    }
-}
-
-impl Sub for &RistrettoPublicKey {
-    type Output = RistrettoPublicKey;
-
-    fn sub(self, rhs: &RistrettoPublicKey) -> Self::Output {
+    fn sub(self, rhs: &RistrettoPublicKey) -> RistrettoPublicKey {
         let p_sum = &self.point - &rhs.point;
         RistrettoPublicKey::new_from_pk(p_sum)
     }
 }
 
-impl Add for &RistrettoSecretKey {
-    type Output = RistrettoSecretKey;
+impl<'a, 'b> Mul<&'b RistrettoSecretKey> for &'a RistrettoPublicKey {
+    type Output = RistrettoPublicKey;
 
-    fn add(self, rhs: &RistrettoSecretKey) -> Self::Output {
-        RistrettoSecretKey(&self.0 + &rhs.0)
-    }
-}
-
-impl Sub for &RistrettoSecretKey {
-    type Output = RistrettoSecretKey;
-
-    fn sub(self, rhs: &RistrettoSecretKey) -> Self::Output {
-        RistrettoSecretKey(&self.0 - &rhs.0)
-    }
-}
-
-impl Mul<RistrettoSecretKey> for RistrettoPublicKey {
-    type Output = Self;
-
-    fn mul(self, rhs: RistrettoSecretKey) -> Self {
+    fn mul(self, rhs: &'b RistrettoSecretKey) -> RistrettoPublicKey {
         let p = &rhs.0 * &self.point;
         RistrettoPublicKey::new_from_pk(p)
     }
 }
+
+impl<'a, 'b> Mul<&'b RistrettoSecretKey> for &'a RistrettoSecretKey {
+    type Output = RistrettoSecretKey;
+
+    fn mul(self, rhs: &'b RistrettoSecretKey) -> RistrettoSecretKey {
+        let p = &rhs.0 * &self.0;
+        RistrettoSecretKey(p)
+    }
+}
+
+define_add_variants!(LHS = RistrettoPublicKey, RHS = RistrettoPublicKey, Output = RistrettoPublicKey);
+define_sub_variants!(LHS = RistrettoPublicKey, RHS = RistrettoPublicKey, Output = RistrettoPublicKey);
+define_mul_variants!(LHS = RistrettoPublicKey, RHS = RistrettoSecretKey, Output = RistrettoPublicKey);
+define_mul_variants!(LHS = RistrettoSecretKey, RHS = RistrettoSecretKey, Output = RistrettoSecretKey);
+
+//----------------------------------         PublicKey From implementations      -------------------------------------//
 
 impl From<RistrettoSecretKey> for Scalar {
     fn from(k: RistrettoSecretKey) -> Self {
@@ -289,6 +304,10 @@ impl From<RistrettoPublicKey> for CompressedRistretto {
         pk.compressed
     }
 }
+
+//--------------------------------------------------------------------------------------------------------------------//
+//                                                     Tests                                                          //
+//--------------------------------------------------------------------------------------------------------------------//
 
 #[cfg(test)]
 mod test {
