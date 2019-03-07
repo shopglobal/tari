@@ -75,7 +75,7 @@ use crate::{
 /// }
 /// ```
 ///
-/// # Verifying signatures
+/// # Verifying signature   s
 ///
 /// Given a signature, (R,s) and a Challenge, e, you can verify that the signature is valid by calling the `verify`
 /// method:

@@ -25,7 +25,6 @@ pub mod pedersen;
 pub mod ristretto_keys;
 //pub mod ristretto_musig;
 pub mod ristretto_sig;
-pub mod test_common;
 
 // Re-export
 pub use self::{

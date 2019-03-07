@@ -51,9 +51,10 @@ pub trait SecretKeyFactory: Sized {
 /// let k = RistrettoSecretKey::random(&mut rng);
 /// let p = RistrettoPublicKey::from_secret_key(&k);
 /// ```
-pub trait SecretKey: ByteArray + Clone {
+pub trait SecretKey: ByteArray + Clone + PartialEq + Eq + Add<Output=Self> {
     fn key_length() -> usize;
 }
+
 
 //----------------------------------------   Public Keys  ----------------------------------------//
 

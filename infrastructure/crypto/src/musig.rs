@@ -30,6 +30,7 @@ use derive_error::Error;
 use digest::Digest;
 use std::{ops::Mul, prelude::v1::Vec};
 use crate::challenge::MessageHash;
+use std::ops::Add;
 
 //----------------------------------------------   Constants       ------------------------------------------------//
 const MAX_SIGNATURES: usize = 32768; // If you need more, call customer support
@@ -53,6 +54,8 @@ pub enum MuSigError {
     DuplicatePubKey,
     // There are too many parties in the MuSig signature
     TooManyParticipants,
+    // There are too few parties in the MuSig signature
+    NotEnoughParticipants,
 }
 
 //----------------------------------------------     Joint Key     ------------------------------------------------//
@@ -68,36 +71,45 @@ pub enum MuSigError {
 /// $$
 /// Concrete implementations of JointKey will also need to implement the MultiScalarMul trait, which allows them to
 /// provide implementation-specific optimisations for dot-product operations.
-pub struct JointKey<P: PublicKey> {
-    num_signers: usize,
-    is_sorted: bool,
-    participants: Vec<P>,
+pub struct JointKey<P, K>
+    where
+        K: SecretKey,
+        P: PublicKey<K=K>,
+{
+    pub_keys: Vec<P>,
+    musig_scalars: Vec<K>,
+    common: K,
+    joint_pub_key: P,
 }
 
-impl<K, P> JointKey<P>
+pub struct JointKeyBuilder<P, K>
+    where
+        K: SecretKey,
+        P: PublicKey<K=K>,
+{
+    num_signers: usize,
+    pub_keys: Vec<P>,
+}
+
+
+impl<K, P> JointKeyBuilder<P, K>
     where
         K: SecretKey + Mul<P, Output=P>,
         P: PublicKey<K=K>,
 {
     /// Create a new JointKey instance containing no participant keys, or return `TooManyParticipants` if n exceeds
     /// `MAX_SIGNATURES`
-    pub fn new(n: usize) -> Result<JointKey<P>, MuSigError> {
+    pub fn new(n: usize) -> Result<JointKeyBuilder<P, K>, MuSigError> {
         if n > MAX_SIGNATURES {
             return Err(MuSigError::TooManyParticipants);
         }
-        Ok(JointKey {
-            is_sorted: false,
-            participants: Vec::with_capacity(n),
+        Ok(JointKeyBuilder {
+            pub_keys: Vec::with_capacity(n),
             num_signers: n,
         })
     }
 
-    /// If the participant keys are in lexicographical order, returns true.
-    pub fn is_sorted(&self) -> bool {
-        self.is_sorted
-    }
-
-    /// The number of parties in the MuSig protocol
+    /// The number of parties in the Joint key
     pub fn num_signers(&self) -> usize {
         self.num_signers
     }
@@ -108,18 +120,22 @@ impl<K, P> JointKey<P>
             return Err(MuSigError::DuplicatePubKey);
         }
         // push panics on int overflow, so catch this here
-        let n = self.participants.len();
-        if n + 1 >= MAX_SIGNATURES {
+        let n = self.pub_keys.len();
+        if n >= MAX_SIGNATURES {
             return Err(MuSigError::TooManyParticipants);
         }
-        self.participants.push(pub_key);
-        self.is_sorted = false;
-        Ok(n + 1)
+        self.pub_keys.push(pub_key);
+        Ok(self.pub_keys.len())
     }
 
     /// Checks whether the given public key is in the participants list
     pub fn key_exists(&self, key: &P) -> bool {
-        self.participants.iter().any(|v| v == key)
+        self.pub_keys.iter().find(|v| *v == key).is_none()
+    }
+
+    /// Checks whether the number of pub_keys is equal to `num_signers`
+    pub fn is_full(&self) -> bool {
+        self.pub_keys.len() == self.num_signers
     }
 
     /// Add all the keys in `keys` to the participant list.
@@ -127,7 +143,19 @@ impl<K, P> JointKey<P>
         for k in keys.into_iter() {
             self.add_key(k)?;
         }
-        Ok(self.participants.len())
+        Ok(self.pub_keys.len())
+    }
+
+    /// Produce a sorted, immutable joint Musig public key from the gathered set of conventional public keys
+    pub fn build<D: Digest>(mut self) -> Result<JointKey<P, K>, MuSigError> {
+        if !self.is_full() {
+            return Err(MuSigError::NotEnoughParticipants);
+        }
+        self.sort_keys();
+        let common = self.calculate_common::<D>();
+        let musig_scalars = self.calculate_musig_scalars::<D>(&common);
+        let joint_pub_key = JointKeyBuilder::calculate_joint_key::<D>(&musig_scalars, &self.pub_keys);
+        Ok(JointKey { pub_keys: self.pub_keys, musig_scalars, joint_pub_key, common })
     }
 
     /// Utility function to calculate \\( \ell = H(P_1 || ... || P_n) \mod p \\)
@@ -135,9 +163,9 @@ impl<K, P> JointKey<P>
     /// If the SecretKey implementation cannot construct a valid key from the given hash, the function will panic.
     /// You should ensure that the SecretKey constructor protects against failures and that the hash digest given
     /// produces a byte array of the correct length.
-    pub fn calculate_common<D: Digest>(&self) -> K {
+    fn calculate_common<D: Digest>(&self) -> K {
         let mut common = Challenge::<D>::new();
-        for k in self.participants.iter() {
+        for k in self.pub_keys.iter() {
             common = common.concat(k.to_bytes());
         }
         K::from_vec(&common.hash())
@@ -158,38 +186,54 @@ impl<K, P> JointKey<P>
     /// Sort the keys in the participant list. The order is determined by the `Ord` trait of the concrete public key
     /// implementation used to construct the joint key.
     /// **NB:** Sorting the keys will, usually, change the value of the joint key!
-    pub fn sort_keys(&mut self) {
-        self.participants.sort_unstable();
-        self.is_sorted = true;
+    fn sort_keys(&mut self) {
+        self.pub_keys.sort_unstable();
     }
 
     /// Utility function that produces the vector of MuSig private key modifiers, \\( a_i = H(\ell || P_i) \\)
-    pub fn calculate_musig_scalars<D: Digest>(&self) -> Vec<K> {
-        let common = self.calculate_common::<D>();
-        self.participants.iter().map(|p| JointKey::calculate_partial_key::<D>(common.to_bytes(), p)).collect()
+    fn calculate_musig_scalars<D: Digest>(&self, common: &K) -> Vec<K> {
+        self.pub_keys
+            .iter()
+            .map(|p| JointKeyBuilder::calculate_partial_key::<D>(common.to_bytes(), p))
+            .collect()
     }
 
     /// Calculate the value of the Joint MuSig public key. **NB**: you should usually sort the participant's keys
     /// before calculating the joint key.
-    pub fn calculate_joint_key<D: Digest>(&mut self) -> P {
-        let s = self.calculate_musig_scalars::<D>();
-        let key = P::batch_mul(&s, &self.participants);
-        key
+    fn calculate_joint_key<D: Digest>(scalars: &Vec<K>, pub_keys: &Vec<P>) -> P {
+        P::batch_mul(scalars, pub_keys)
     }
+}
 
-    /// Return the index of the given key in the joint key participants list. If the list isn\t sorted, returns
+impl<P, K> JointKey<P, K>
+    where
+        K: SecretKey,
+        P: PublicKey<K=K>,
+{
+    /// Return the index of the given key in the joint key participants list. If the list isn't sorted, returns
     /// Err(`NotSorted`), and if the key isn't in the list, returns `Err(ParticipantNotFound)`
     pub fn index_of(&self, pubkey: &P) -> Result<usize, MuSigError> {
-        if !self.is_sorted {
-            return Err(MuSigError::NotSorted);
-        }
-        match self.participants.binary_search(pubkey) {
+        match self.pub_keys.binary_search(pubkey) {
             Ok(i) => Ok(i),
             Err(_) => Err(MuSigError::ParticipantNotFound),
         }
     }
-}
 
+    #[inline]
+    pub fn size(&self) -> usize {
+        self.pub_keys.len()
+    }
+
+    #[inline]
+    pub fn get_pub_keys(&self, index: usize) -> &P {
+        &self.pub_keys[index]
+    }
+
+    #[inline]
+    pub fn get_musig_scalar(&self, index: usize) -> &K {
+        &self.musig_scalars[index]
+    }
+}
 //----------------------------------------------      MuSig        ------------------------------------------------//
 
 /// MuSig signature aggregation. [MuSig](https://blockstream.com/2018/01/23/musig-key-aggregation-schnorr-signatures/)
@@ -213,17 +257,21 @@ impl<K, P> JointKey<P>
 /// key being discovered. See
 /// [this post](https://tlu.tarilabs.com/cryptography/digital_signatures/introduction_schnorr_signatures.html#musig)
 /// for details.
-pub struct MuSig<P: PublicKey> {
-    state: MuSigState<P>,
+pub struct MuSig<P, K>
+    where
+        K: SecretKey,
+        P: PublicKey<K=K>,
+{
+    state: MuSigState<P, K>,
 }
 
-impl<K, P> MuSig<P>
+impl<K, P> MuSig<P, K>
     where
         K: SecretKey + Mul<P, Output=P>,
         P: PublicKey<K=K>,
 {
     /// Create a new, empty MuSig ceremony for _n_ participants
-    pub fn new(n: usize) -> MuSig<P> {
+    pub fn new(n: usize) -> MuSig<P, K> {
         let state = match Initialization::new(n) {
             Ok(s) => MuSigState::Initialization(s),
             Err(e) => MuSigState::Failed(e),
@@ -239,40 +287,40 @@ impl<K, P> MuSig<P>
         }
     }
 
-    pub fn add_public_key(self, key: &P) -> Self {
+    pub fn add_public_key<D: Digest>(self, key: &P) -> Self {
         let key = key.clone();
-        self.handle_event(MuSigEvent::AddKey(key))
+        self.handle_event::<D>(MuSigEvent::AddKey(key))
     }
 
-    pub fn add_nonce_commitment(self, pub_key: &P, commitment: MessageHash) -> Self {
-        self.handle_event(MuSigEvent::AddNonceHash(pub_key, commitment))
+    pub fn add_nonce_commitment<D: Digest>(self, pub_key: &P, commitment: MessageHash) -> Self {
+        self.handle_event::<D>(MuSigEvent::AddNonceHash(pub_key, commitment))
     }
 
     /// Private convenience function that returns a Failed state with the `InvalidStateTransition` error
-    fn invalid_transition() -> MuSigState<P> {
+    fn invalid_transition() -> MuSigState<P, K> {
         MuSigState::Failed(MuSigError::InvalidStateTransition)
     }
 
     /// Implement a finite state machine. Each combination of State and Event is handled here; for each combination, a
     /// new state is determined, consuming the old one. If `MuSigState::Failed` is ever returned, the protocol must be
     /// abandoned.
-    fn handle_event(self, event: MuSigEvent<P>) -> Self {
+    fn handle_event<D: Digest>(self, event: MuSigEvent<P>) -> Self {
         let state = match self.state {
             // On initialization, you can add keys until you reach `num_signers` at which point the state
             // automatically flips to `NonceHashCollection`; we're forced to use nested patterns because of error
             MuSigState::Initialization(s) => {
                 match event {
-                    MuSigEvent::AddKey(p) => s.add_pubkey(p),
+                    MuSigEvent::AddKey(p) => s.add_pubkey::<D>(p),
                     _ => MuSig::invalid_transition(),
                 }
-            },
+            }
             // Nonce Hash collection
             MuSigState::NonceHashCollection(s) => {
                 match event {
-                    MuSigEvent::AddNonceHash(p, h) => s.add_nonce_hash(p, h.clone()),
+                    MuSigEvent::AddNonceHash(p, h) => s.add_nonce_hash::<D>(p, h.clone()),
                     _ => MuSig::invalid_transition(),
                 }
-            },
+            }
             // There's no way back from a Failed State.
             MuSigState::Failed(_) => MuSig::invalid_transition(),
             _ => MuSig::invalid_transition(),
@@ -305,36 +353,41 @@ pub enum MuSigEvent<'a, P: PublicKey> {
 /// by a) there being no way to move from a given state's methods to another state using an invalid transition and b)
 /// the global `match` clause in the [MuSig](structs.MuSig.html) struct implementation. Any invalid transition
 /// attempt leads to the `Failed` state.
-enum MuSigState<P: PublicKey> {
-    Initialization(Initialization<P>),
-    NonceHashCollection(NonceHashCollection<P>),
-    NonceCollection(NonceCollection<P>),
-    SignatureCollection(SignatureCollection<P>),
-    Finalized,
+enum MuSigState<P, K>
+    where P: PublicKey<K=K>, K: SecretKey
+{
+    Initialization(Initialization<P, K>),
+    NonceHashCollection(NonceHashCollection<P, K>),
+    NonceCollection(NonceCollection<P, K>),
+    SignatureCollection(SignatureCollection<P, K>),
+    Finalized(SchnorrSignature<P, K>),
     Failed(MuSigError),
 }
 
-struct Initialization<P: PublicKey> {
-    joint_key: JointKey<P>,
+struct Initialization<P, K>
+    where P: PublicKey<K=K>, K: SecretKey, {
+    joint_key_builder: JointKeyBuilder<P, K>,
 }
 
-impl<P, K> Initialization<P>
+impl<P, K> Initialization<P, K>
     where
         K: SecretKey + Mul<P, Output=P>,
         P: PublicKey<K=K>,
 {
-    pub fn new(n: usize) -> Result<Initialization<P>, MuSigError> {
-        let joint_key = JointKey::new(n)?;
-        Ok(Initialization { joint_key })
+    pub fn new(n: usize) -> Result<Initialization<P, K>, MuSigError> {
+        let joint_key_builder = JointKeyBuilder::new(n)?;
+        Ok(Initialization { joint_key_builder })
     }
 
-    pub fn add_pubkey(mut self, key: P) -> MuSigState<P> {
-        match self.joint_key.add_key(key) {
-            Ok(n) => {
-                if n == self.joint_key.num_signers() {
-                    MuSigState::NonceHashCollection(NonceHashCollection::new(self))
+    pub fn add_pubkey<D:Digest>(mut self, key: P) -> MuSigState<P, K> {
+        match self.joint_key_builder.add_key(key) {
+            Ok(_) => {
+                if self.joint_key_builder.is_full() {
+                    match self.joint_key_builder.build::<D>() {
+                        Ok(jk) => MuSigState::NonceHashCollection(NonceHashCollection::new(jk)),
+                        Err(e) => MuSigState::Failed(e),
+                    }
                 } else {
-                    self.joint_key.sort_keys();
                     MuSigState::Initialization(self)
                 }
             }
@@ -343,25 +396,27 @@ impl<P, K> Initialization<P>
     }
 }
 
-struct NonceHashCollection<P: PublicKey> {
-    joint_key: JointKey<P>,
+struct NonceHashCollection<P, K> where
+    K: SecretKey,
+    P: PublicKey<K=K>,
+{
+    joint_key: JointKey<P, K>,
     nonce_hashes: FixedSet<MessageHash>,
 }
 
-impl<P, K> NonceHashCollection<P>
+impl<P, K> NonceHashCollection<P, K>
     where
         K: SecretKey + Mul<P, Output=P>,
         P: PublicKey<K=K>,
 {
-    fn new(init: Initialization<P>) -> NonceHashCollection<P> {
-        let n = init.joint_key.num_signers;
+    fn new(joint_key: JointKey<P, K>) -> NonceHashCollection<P, K> {
         NonceHashCollection {
-            joint_key: init.joint_key,
-            nonce_hashes: FixedSet::new(n),
+            joint_key,
+            nonce_hashes: FixedSet::new(joint_key.size()),
         }
     }
 
-    fn add_nonce_hash(mut self, pub_key: &P, hash: MessageHash) -> MuSigState<P> {
+    fn add_nonce_hash<D:Digest>(mut self, pub_key: &P, hash: MessageHash) -> MuSigState<P, K> {
         match self.joint_key.index_of(pub_key) {
             Ok(i) => {
                 self.nonce_hashes.set_item(i, hash);
@@ -376,19 +431,22 @@ impl<P, K> NonceHashCollection<P>
     }
 }
 
-struct NonceCollection<P: PublicKey> {
-    joint_key: JointKey<P>,
+struct NonceCollection<P, K> where
+    K: SecretKey,
+    P: PublicKey<K=K>,
+{
+    joint_key: JointKey<P, K>,
     nonce_hashes: FixedSet<MessageHash>,
     public_nonces: FixedSet<P>,
 }
 
-impl<P, K> NonceCollection<P>
+impl<P, K> NonceCollection<P, K>
     where
         K: SecretKey + Mul<P, Output=P>,
         P: PublicKey<K=K>,
 {
-    fn new(init: NonceHashCollection<P>) -> NonceCollection<P> {
-        let n = init.joint_key.num_signers;
+    fn new(init: NonceHashCollection<P, K>) -> NonceCollection<P, K> {
+        let n = init.joint_key.size();
         NonceCollection {
             joint_key: init.joint_key,
             nonce_hashes: init.nonce_hashes,
@@ -396,7 +454,7 @@ impl<P, K> NonceCollection<P>
         }
     }
 
-    fn all_nonces_valid<D: Digest>(&self) -> bool {
+    fn all_nonces_valid<D:Digest>(&self) -> bool {
         if !self.public_nonces.is_full() {
             return false;
         }
@@ -412,12 +470,12 @@ impl<P, K> NonceCollection<P>
     }
 
     // We definitely want to consume `nonce` here to discourage nonce re-use
-    fn add_nonce(mut self, pub_key: &P, nonce: P) -> MuSigState<P> {
+    fn add_nonce<D: Digest>(mut self, pub_key: &P, nonce: P) -> MuSigState<P, K> {
         match self.joint_key.index_of(pub_key) {
             Ok(i) => {
                 self.public_nonces.set_item(i, nonce);
                 if self.public_nonces.is_full() {
-                    MuSigState::SignatureCollection(SignatureCollection::new(self))
+                    MuSigState::SignatureCollection(SignatureCollection::new::<D>(self))
                 } else {
                     MuSigState::NonceCollection(self)
                 }
@@ -427,45 +485,97 @@ impl<P, K> NonceCollection<P>
     }
 }
 
-struct SignatureCollection<P: PublicKey> {
-    joint_key: JointKey<P>,
+struct SignatureCollection<P, K>
+    where P: PublicKey<K=K>,
+          K: SecretKey,
+{
+    joint_key: JointKey<P, K>,
     public_nonces: FixedSet<P>,
-    partial_signatures: FixedSet<P>,
+    partial_signatures: FixedSet<SchnorrSignature<P, K>>,
 }
 
-impl<P, K> SignatureCollection<P>
+impl<P, K> SignatureCollection<P, K>
     where
-        K: SecretKey + Mul<P, Output=P>,
-        P: PublicKey<K=K>,
+        K: SecretKey + PartialEq + Add<Output = K>,
+        P: PublicKey<K=K> + Add<Output = P>,
 {
-    fn new(init: NonceCollection<P>) -> SignatureCollection<P> {
-        let n = init.joint_key.num_signers;
+    fn new<D: Digest>(init: NonceCollection<P, K>) -> SignatureCollection<P, K> {
+        let n = init.joint_key.size();
         SignatureCollection {
             joint_key: init.joint_key,
             public_nonces: init.public_nonces,
-            partial_signatures: FixedSet::new(n)
+            partial_signatures: FixedSet::new(n),
         }
     }
 
-    fn add_partial_signature(mut self, signature: &SchnorrSignature) -> MuSigState<P> {
+    fn validate_partial_signature<'a, 'b, D: Digest>(&'b self, index: usize, signature: &SchnorrSignature<P, K>) ->
+                                                                                                                  bool
+    where
+     K: 'b + Mul<&'b P, Output=P>,
+     P: 'a,
+     &'b K: Add<&'b K, Output = K>,
+    {
+        // s_i = r_i + a_i k_i e, so
+        // s_i.G = R_i + a_i P_i e
+        let pub_key = self.joint_key.get_pub_keys(index);
+        let a_i = self.joint_key.get_musig_scalar(index).clone();
+        let e = Challenge::<D>::new();
+        let p = a_i * pub_key;
+        signature.verify(&p, e)
+    }
 
+    fn calculate_agg_signature(self) -> SchnorrSignature<P, K> {
+        let s = self.partial_signatures.items;
+        let sig = &s[0].unwrap() + &s[0].unwrap();
+        //let sig = s.iter().skip(1).fold(s[0].unwrap(), |sum, s| &s.unwrap() + &sum);
+        sig
+    }
+
+    fn validate_and_set_signature<D:Digest>(mut self, index: usize, signature: SchnorrSignature<P, K>) -> MuSigState<P, K> {
+        if self.partial_signatures.set_item(index, signature) {
+            if self.partial_signatures.is_full() {
+                let s = self.calculate_agg_signature();
+                MuSigState::Finalized(s)
+            } else {
+                MuSigState::SignatureCollection(self)
+            }
+        } else {
+            MuSigState::Failed(MuSigError::MismatchedSignatures)
+        }
+    }
+
+    fn add_partial_signature<D:Digest>(mut self, signature: SchnorrSignature<P, K>) -> MuSigState<P, K> {
+        match self.public_nonces.slow_search(signature.get_public_nonce()) {
+            None => MuSigState::Failed(MuSigError::ParticipantNotFound),
+            Some(i) => self.validate_and_set_signature::<D>(i, signature)
+        }
     }
 }
-
 
 //-------------------------------------------         Fixed Set          ---------------------------------------------//
 
 pub struct FixedSet<T> {
+    is_sorted: bool,
     items: Vec<Option<T>>,
 }
 
-impl<T: Clone> FixedSet<T> {
-
+impl<T: Clone + PartialEq> FixedSet<T> {
     /// Creates a new fixed set of size n.
     pub fn new(n: usize) -> FixedSet<T> {
         FixedSet {
+            is_sorted: false,
             items: vec![None; n],
         }
+    }
+
+    /// Returns the size of the fixed set, NOT the number of items that have been set
+    pub fn size(&self) -> usize {
+        self.items.len()
+    }
+
+    /// Returns true if the set elements are sorted according to `Ord<P>`.
+    pub fn is_sorted(&self) -> bool {
+        self.is_sorted
     }
 
     /// Set the `index`th item to `val`. Any existing item is overwritten. The set takes ownership of `val`.
@@ -474,6 +584,7 @@ impl<T: Clone> FixedSet<T> {
             return false;
         }
         self.items[index] = Some(val);
+        self.is_sorted = false;
         true
     }
 
@@ -495,6 +606,16 @@ impl<T: Clone> FixedSet<T> {
     /// Returns true if every item in the set has been set. An empty set returns true as well.
     pub fn is_full(&self) -> bool {
         self.items.iter().all(|v| v.is_some())
+    }
+
+    /// Return the index of the given item in the set by performing a linear search through the set
+    pub fn slow_search(&self, val: &T) -> Option<usize> {
+        match self.items.iter()
+            .enumerate()
+            .find(|v| v.1.is_some() && v.1.unwrap() == *val) {
+            Some(item) => Some(item.0),
+            None => None,
+        }
     }
 }
 
@@ -555,5 +676,7 @@ mod test {
         assert_eq!(s.get_item(0).unwrap().baz, "Commander Vimes");
         assert!(s.get_item(1).is_none());
         assert_eq!(s.get_item(2).unwrap().baz, "Captain Carrot");
+        // Size is 3
+        assert_eq!(s.size(), 3);
     }
 }
